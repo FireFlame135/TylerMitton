@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>3D Maze Explorer</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+    }
+    /* Back button styling */
+    #back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px;
+      background-color: rgba(0,0,0,0.5);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+    #back-button .icon {
+      margin-right: 5px;
+      font-size: 16px;
+    }
+    /* HUD moved down to accommodate back button */
+    #hud {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      color: white;
+      background-color: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 100;
+    }
+    #instructions {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      background-color: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      z-index: 100;
+    }
+    #toggle-mode {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      background-color: rgba(0,0,0,0.5);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 100;
+    }
+    #mouse-capture-notice {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Back to Website Button -->
+    <button id="back-button" onclick="window.location.href='index.html'">
+      <span class="icon">&#8592;</span>Go Back to Website
+    </button>
+
+    <div id="hud">
+      Position: <span id="position">0,0,0</span><br>
+      Mode: <span id="control-mode">Keyboard</span><br>
+    </div>
+
+    <div id="instructions">
+      W/Up Arrow keys to move forward | S/Down Arrow to move backward<br>
+      A/D or Left/Right Arrow keys to turn left/right<br>
+      Click Toggle Mode for mouse camera control (ESC to exit mouse mode)
+    </div>
+    <button id="toggle-mode">Toggle Control Mode</button>
+    <div id="mouse-capture-notice">
+      Mouse camera control enabled<br>
+      Move mouse to look around<br>
+      Press ESC to exit this mode
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Game constants
+    const CELL_SIZE = 5;
+    const WALL_HEIGHT = 3;
+    const RENDER_DISTANCE = 5;
+    const MOVE_SPEED = 0.1;
+    const TURN_SPEED = 0.03;
+    const MOUSE_SENSITIVITY = 0.002;
+    const MAX_WALL_INSTANCES = 2000;
+
+    // Game state
+    let camera, scene, renderer, wallInstances;
+    let playerPosition = { x: 0, y: 1, z: 0 };
+    let playerRotation = 0;
+    let maze = {};
+    let keysPressed = {};
+    let mouseMode = false;
+    let mouseX = 0, mouseY = 0;
+    let pointerLocked = false;
+    let wallGeometry, wallMaterial;
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x87CEEB);
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+
+      const ambientLight = new THREE.AmbientLight(0x404040);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById('game-container').appendChild(renderer.domElement);
+
+      wallGeometry = new THREE.BoxGeometry(1, 1, 1);
+      wallMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 });
+      wallInstances = new THREE.InstancedMesh(wallGeometry, wallMaterial, MAX_WALL_INSTANCES);
+      wallInstances.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      scene.add(wallInstances);
+
+      const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+      const groundMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x3a7e4f,
+        side: THREE.DoubleSide
+      });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = Math.PI / 2;
+      ground.position.y = -0.5;
+      scene.add(ground);
+
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('keydown', (e) => { keysPressed[e.key.toLowerCase()] = true; });
+      window.addEventListener('keyup', (e) => { keysPressed[e.key.toLowerCase()] = false; });
+      
+      document.getElementById('toggle-mode').addEventListener('click', toggleControlMode);
+      
+      const gameContainer = renderer.domElement;
+      gameContainer.addEventListener('click', function() {
+        if (mouseMode && !pointerLocked) {
+          gameContainer.requestPointerLock();
+        }
+      });
+      
+      document.addEventListener('pointerlockchange', pointerLockChange);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mouseMode) {
+          toggleControlMode();
+        }
+      });
+
+      animate();
+    }
+
+    function pointerLockChange() {
+      pointerLocked = !!document.pointerLockElement;
+      document.getElementById('mouse-capture-notice').style.display = pointerLocked ? 'block' : 'none';
+    }
+
+    function toggleControlMode() {
+      mouseMode = !mouseMode;
+      document.getElementById('control-mode').textContent = mouseMode ? 'Mouse' : 'Keyboard';
+      if (mouseMode) {
+        renderer.domElement.requestPointerLock();
+      } else {
+        document.exitPointerLock();
+      }
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onMouseMove(event) {
+      if (mouseMode && pointerLocked) {
+        const movementX = event.movementX || 0;
+        const movementY = event.movementY || 0;
+        playerRotation -= movementX * MOUSE_SENSITIVITY;
+        mouseY = THREE.MathUtils.clamp(
+          mouseY - movementY * MOUSE_SENSITIVITY,
+          -Math.PI/2 + 0.1,
+          Math.PI/2 - 0.1
+        );
+      }
+    }
+
+    function generateMazeCell(x, z) {
+      const cell = {
+        north: Math.random() > 0.6,
+        east: Math.random() > 0.6,
+        south: Math.random() > 0.6, 
+        west: Math.random() > 0.6
+      };
+      
+      if (Object.values(cell).every(v => v)) {
+        const randomWall = Math.floor(Math.random() * 4);
+        ['north', 'east', 'south', 'west'][randomWall] = false;
+      }
+      return cell;
+    }
+
+    function getCell(x, z) {
+      const key = `${x},${z}`;
+      if (!maze[key]) maze[key] = generateMazeCell(x, z);
+      return maze[key];
+    }
+
+    function updateMazeSection(frustum) {
+      const cellX = Math.floor(playerPosition.x / CELL_SIZE);
+      const cellZ = Math.floor(playerPosition.z / CELL_SIZE);
+      const matrix = new THREE.Matrix4();
+      let instanceCount = 0;
+
+      for (let x = cellX - RENDER_DISTANCE; x <= cellX + RENDER_DISTANCE; x++) {
+        for (let z = cellZ - RENDER_DISTANCE; z <= cellZ + RENDER_DISTANCE; z++) {
+          const cell = getCell(x, z);
+          ['north', 'east', 'south', 'west'].forEach(wallType => {
+            if (!cell[wallType]) return;
+
+            const position = getWallPosition(x, z, wallType);
+            const rotation = getWallRotation(wallType);
+            const length = CELL_SIZE;
+
+            const box = new THREE.Box3().setFromCenterAndSize(
+              new THREE.Vector3(position.x, position.y, position.z),
+              new THREE.Vector3(length, WALL_HEIGHT, 0.3)
+            );
+
+            if (frustum.intersectsBox(box)) {
+              matrix.compose(
+                new THREE.Vector3(position.x, position.y, position.z),
+                new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rotation, 0)),
+                new THREE.Vector3(length, WALL_HEIGHT, 0.3)
+              );
+              
+              if (instanceCount < MAX_WALL_INSTANCES) {
+                wallInstances.setMatrixAt(instanceCount, matrix);
+                instanceCount++;
+              }
+            }
+          });
+        }
+      }
+
+      wallInstances.count = instanceCount;
+      wallInstances.instanceMatrix.needsUpdate = true;
+    }
+
+    function getWallPosition(x, z, wallType) {
+      const cx = x * CELL_SIZE;
+      const cz = z * CELL_SIZE;
+      switch(wallType) {
+        case 'north': return new THREE.Vector3(cx + CELL_SIZE/2, WALL_HEIGHT/2 - 0.5, cz);
+        case 'east': return new THREE.Vector3(cx + CELL_SIZE, WALL_HEIGHT/2 - 0.5, cz + CELL_SIZE/2);
+        case 'south': return new THREE.Vector3(cx + CELL_SIZE/2, WALL_HEIGHT/2 - 0.5, cz + CELL_SIZE);
+        case 'west': return new THREE.Vector3(cx, WALL_HEIGHT/2 - 0.5, cz + CELL_SIZE/2);
+      }
+    }
+
+    function getWallRotation(wallType) {
+      switch(wallType) {
+        case 'north': return Math.PI/2;
+        case 'east': return 0;
+        case 'south': return -Math.PI/2;
+        case 'west': return Math.PI;
+      }
+    }
+
+    // Input handling
+    function processInput() {
+      let moved = false;
+      const moveX = Math.sin(playerRotation) * MOVE_SPEED;
+      const moveZ = Math.cos(playerRotation) * MOVE_SPEED;
+
+      if (keysPressed['w'] || keysPressed['arrowup']) {
+        playerPosition.x -= moveX;
+        playerPosition.z -= moveZ;
+        moved = true;
+      }
+      if (keysPressed['s'] || keysPressed['arrowdown']) {
+        playerPosition.x += moveX;
+        playerPosition.z += moveZ;
+        moved = true;
+      }
+      if (keysPressed['a'] || keysPressed['arrowleft']) {
+        playerRotation += TURN_SPEED;
+        moved = true;
+      }
+      if (keysPressed['d'] || keysPressed['arrowright']) {
+        playerRotation -= TURN_SPEED;
+        moved = true;
+      }
+
+      document.getElementById('position').textContent = 
+        `${playerPosition.x.toFixed(1)}, ${playerPosition.y.toFixed(1)}, ${playerPosition.z.toFixed(1)}`;
+      
+      return moved;
+    }
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      processInput();
+
+      // Update camera transforms
+      camera.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+      camera.rotation.set(mouseY, playerRotation, 0, 'YXZ');
+
+      // Update frustum for culling
+      camera.updateMatrixWorld();
+      const frustum = new THREE.Frustum();
+      frustum.setFromProjectionMatrix(
+        new THREE.Matrix4().multiplyMatrices(
+          camera.projectionMatrix, 
+          camera.matrixWorldInverse
+        )
+      );
+
+      // Update visible walls
+      updateMazeSection(frustum);
+
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+</html>
