@@ -23,8 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          corepack enable
-          npm install
+          npm ci
 
       - name: Build project
         run: npm run build
