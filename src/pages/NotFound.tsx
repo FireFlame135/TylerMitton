@@ -16,7 +16,7 @@ const NotFound = () => {
       <div className="text-center">
         <h1 className="text-4xl text-gray-900 dark:text-gray-100 font-bold mb-4">404 Error</h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">Oops! Page not found.</p>
-        <a href="/" className="text-blue-500 dark:text-blue-400 hover:text-blue-700 underline">
+        <a href="/TylerMitton/" className="text-blue-500 dark:text-blue-400 hover:text-blue-700 underline">
           Return to Home
         </a>
       </div>
