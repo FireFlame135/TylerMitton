@@ -161,7 +161,7 @@ const Contact: React.FC = () => {
             </div>
             <div className="flex items-center space-x-6 pt-4">
               <a
-                href="#"
+                href="https://www.linkedin.com/in/tyler-mitton/"
                 className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiLinkedin size={30} />
@@ -176,7 +176,7 @@ const Contact: React.FC = () => {
                 <SiMedium size={30} />
               </a>
               <a 
-                href="#"
+                href="https://www.instagram.com/tylermitton135/"
                 className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiInstagram size={30} />
