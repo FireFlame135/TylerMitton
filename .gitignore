@@ -50,3 +50,6 @@ bun.lockb
 
 # shadcn ui cache: Keep for now
 # components.json
+
+# Ignore this file which is used to plan the next changes
+NextChanges.txt

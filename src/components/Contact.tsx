@@ -124,7 +124,7 @@ const Contact: React.FC = () => {
   }
 
   return (
-    <section id="contact" className="py-16 px-6 sm:px-8 max-w-7xl mx-auto dark:bg-gray-800">
+    <section id="contact" className="py-16 px-6 sm:px-8 mx-auto dark:bg-gray-800">
       <div className="grid lg:grid-cols-2 gap-12">
         {/* Contact info + social links */}
         <div>

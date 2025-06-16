@@ -4,12 +4,12 @@ import { ExternalLink, Calendar } from 'lucide-react';
 const Articles = () => {
   const articles = [
     {
-      title: "The Psychology of Color in Brand Design",
-      excerpt: "Exploring how color choices influence consumer behavior and brand perception in modern design.",
-      date: "Nov 2024",
-      readTime: "5 min read",
-      link: "https://medium.com/@tylermitton/psychology-color-brand-design",
-      category: "Design Psychology"
+      title: "Student Research Conference Presentation: PROTAC linker engineering",
+      excerpt: "A high level overview of my experience presenting on my research project and its findings.",
+      date: "March 2025",
+      readTime: "3 min read",
+      link: "https://www.linkedin.com/posts/tyler-mitton_yesterday-i-had-the-opportunity-to-present-activity-7304593127820931072-IZd5?utm_source=share&utm_medium=member_desktop&rcm=ACoAADgP_SEBG8Ze7TVFd99Ls8UQ33ZxpEEJR0A",
+      category: "Biochemistry Research"
     },
     {
       title: "Minimalism vs. Maximalism: Finding Your Design Voice",

@@ -2,9 +2,9 @@
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "Tyler's attention to detail and creative vision transformed our brand identity completely. His work exceeded all our expectations.",
-      author: "Sarah Johnson",
-      title: "CEO, TechStart Inc.",
+      quote: "Tyler has demonstrated remarkable initiative and dedication. He has been required to learn independently and has done remarkably. One of Tyler's standout qualities is his consistency and dependability. He is someone that I can always count on. He takes ownership of his tasks and shows a genuine eagerness to learn and grow.",
+      author: "Coleman Nielsen",
+      title: "PhD Candidate, Brigham Young University",
     },
     {
       quote: "Working with Tyler was an absolute pleasure. He brings both technical expertise and artistic flair to every project.",
