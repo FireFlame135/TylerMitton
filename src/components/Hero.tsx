@@ -1,17 +1,15 @@
 
 const Hero = () => {
   return (
-    <section className="pt-24 pb-16 px-6 sm:px-8 mx-auto dark:bg-zinc-800">
+    <section className="pt-24 pb-16 px-6 sm:px-8 mx-auto bg-[#E2E4E6] dark:bg-zinc-800">
       <div className="max-w-4xl">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-gray-900 leading-tight mb-6 dark:text-gray-100">
           Creative Builder
           <br />
-          <span className="text-gray-600 dark:text-gray-400">& Technological Storyteller</span>
+          <span className="text-gray-600 dark:text-gray-400">& Lifelong Learner</span>
         </h1>
         <p className="text-lg text-gray-600 max-w-2xl leading-relaxed dark:text-gray-400">
-          I create meaningful digital experiences through thoughtful design, 
-          combining strategy and aesthetics to tell compelling visual stories 
-          that connect with people.
+          I love to create products with thoughtful design, combining function and aesthetics to connect with people. I also enjoy using data and software to solve design challenges, streamline processes, and fix real-world problems. 
         </p>
       </div>
     </section>

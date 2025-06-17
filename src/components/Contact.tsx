@@ -124,7 +124,7 @@ const Contact: React.FC = () => {
   }
 
   return (
-    <section id="contact" className="py-16 px-6 sm:px-8 mx-auto dark:bg-gray-800">
+    <section id="contact" className="py-16 px-6 sm:px-8 mx-auto bg-[#F0F1F4] dark:bg-gray-800">
       <div className="grid lg:grid-cols-2 gap-12">
         {/* Contact info + social links */}
         <div>
@@ -147,14 +147,13 @@ const Contact: React.FC = () => {
                 title="Email Tyler Mitton"
                 className="
                   group inline-flex items-center space-x-2
-                  px-3 py-2 rounded-md
-                  text-gray-400 hover:text-gray-800"
-              >
+                  px-3 py-2 rounded-md"
+              > 
                 <Mail
                   size={30}
-                  className="text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-100"
+                  className="text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-100"
                 />
-                <span className="group-hover:text-gray-800 dark:group-hover:text-gray-100">
+                <span className="text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-100">
                   tylermitton@gmail.com
                 </span>
               </a>
@@ -162,7 +161,10 @@ const Contact: React.FC = () => {
             <div className="flex items-center space-x-6 pt-4">
               <a
                 href="https://www.linkedin.com/in/tyler-mitton/"
-                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="LinkedIn"
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiLinkedin size={30} />
               </a>
@@ -171,13 +173,16 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Medium"
-                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiMedium size={30} />
               </a>
               <a 
                 href="https://www.instagram.com/tylermitton135/"
-                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Instagram"
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiInstagram size={30} />
               </a>
@@ -186,7 +191,7 @@ const Contact: React.FC = () => {
         </div>
 
         {/* The Form */}
-        <div className="bg-gray-50 p-8 rounded-lg dark:bg-gray-900">
+        <div className="bg-[#D4D5D8] p-8 rounded-lg dark:bg-gray-900">
           <h3 className="text-xl font-medium text-gray-900 mb-6 dark:text-gray-200 dark:font-bold">
             Send a Message
           </h3>
@@ -262,7 +267,7 @@ const Contact: React.FC = () => {
               {messageError && <p className="text-sm text-red-600 mt-1">{messageError}</p>}
             </div>
 
-            <Button type="submit" className="w-full hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-500 dark:text-gray-100 " disabled={isSubmitting}>
+            <Button type="submit" className="w-full bg-gray-500 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 " disabled={isSubmitting}>
               {isSubmitting ? 'Sending…' : 'Send Message'}
             </Button>
           </form>

@@ -19,14 +19,14 @@ const Testimonials = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-16 px-6 sm:px-8 bg-gray-50 dark:bg-zinc-800">
+    <section id="testimonials" className="py-16 px-6 sm:px-8 bg-[#E2E4E6] dark:bg-zinc-800">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100 dark:text-bold">
             What Others Say
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-400">
-            Don't just take my word for it — here's what clients and collaborators have to say about working together.
+            Don't just take my word for it—here are testimonials from people I've worked with.
           </p>
         </div>
 
@@ -34,11 +34,11 @@ const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600 hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300"
+              className="bg-[#D4D5D8] dark:bg-zinc-900 p-6 rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300"
             >
               <div className="mb-4">
                 <svg
-                  className="w-8 h-8 text-gray-400 dark:text-gray-500"
+                  className="w-8 h-8 text-gray-500 dark:text-gray-500"
                   fill="currentColor"
                   viewBox="0 0 32 32"
                 >
