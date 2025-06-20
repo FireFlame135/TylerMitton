@@ -2,39 +2,47 @@
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "Tyler has demonstrated remarkable initiative and dedication. He has been required to learn independently and has done remarkably. One of Tyler's standout qualities is his consistency and dependability. He is someone that I can always count on. He takes ownership of his tasks and shows a genuine eagerness to learn and grow.",
+      quote: (
+        <>
+        Tyler has demonstrated remarkable <span className="font-black text-black dark:text-gray-50">initiative</span> and <span className="font-black text-black dark:text-gray-50">dedication</span>. He has been required to <span className="font-black text-black dark:text-gray-50">learn independently</span> and has done remarkably. One of Tyler's standout qualities is his consistency and dependability. He is someone that I can always count on. He takes ownership of his tasks and shows a <span className="font-black text-black dark:text-gray-50">genuine eagerness</span> to learn and grow.
+        </>
+      ),
       author: "Coleman Nielsen",
-      title: "PhD Candidate, Brigham Young University",
+      title: "PhD Candidate and Lipidomics group lead, Brigham Young University",
     },
     {
-      quote: "Working with Tyler was an absolute pleasure. He brings both technical expertise and artistic flair to every project.",
-      author: "Michael Chen",
-      title: "Creative Director, DesignFlow",
+      quote: (
+        <>
+          In my year working with Tyler, he was a <span className="font-black text-black dark:text-gray-50">huge asset</span> and I had a pleasure working with him! Tyler excels at taking initiative, and his superpower is his focus on designing for the user. He was able to carefully consider high level project details and context as he built the lower level details of the courses. Tyler always retained an <span className="font-black text-black dark:text-gray-50">impressive attention to detail</span> and exceeded expectations.  It was very clear that Tyler has a <span className="font-black text-black dark:text-gray-50">passion and enthusiasm for design!</span>
+        </>
+      ),
+      author: "Abigail Boekweg",
+      title: "Instructional Design Manager, Brigham Young University Independent Study",
     },
-    {
-      quote: "Tyler's ability to understand our vision and translate it into compelling visual stories is truly remarkable.",
-      author: "Emily Rodriguez",
-      title: "Marketing Manager, BrandCo",
-    },
+    // {
+    //   quote: "Tyler's ability to understand our vision and translate it into compelling visual stories is truly remarkable.",
+    //   author: "Emily Rodriguez",
+    //   title: "Marketing Manager, BrandCo",
+    // },
   ];
 
   return (
-    <section id="testimonials" className="py-16 px-6 sm:px-8 bg-[#E2E4E6] dark:bg-zinc-800">
+    <section id="testimonials" className="py-16 px-6 scroll-mt-16 sm:px-8 bg-[#E2E4E6] dark:bg-zinc-800">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100 dark:text-bold">
             What Others Say
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-400">
+          <p className="text-lg text-gray-600 mx-auto dark:text-gray-400">
             Don't just take my word for it—here are testimonials from people I've worked with.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-8 items-center">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-[#D4D5D8] dark:bg-zinc-900 p-6 rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300"
+              className="w-full max-w-4xl bg-[#D4D5D8] dark:bg-zinc-900 p-6 rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300"
             >
               <div className="mb-4">
                 <svg

@@ -1,6 +1,8 @@
+import headshot from '@/assets/Professional Headshot.jpg';
+
 const About = () => {
   return (
-    <section id="about" className="py-16 px-6 sm:px-8 mx-auto bg-[#E2E4E6] dark:bg-zinc-800">
+    <section id="about" className="py-16 px-6 sm:px-8 mx-auto bg-[#E2E4E6] scroll-mt-16 dark:bg-zinc-800">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         <div>
           <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-6 dark:text-gray-100">
@@ -25,33 +27,12 @@ const About = () => {
         </div>
 
         <div className="space-y-8">
-          <div className="aspect-[3/4] bg-gray-100 overflow-hidden">
+          <div className="aspect-[3/4] max-w-sm mx-auto bg-gray-100 overflow-hidden rounded-lg shadow">
             <img
-              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80"
-              alt="Portrait"
+              src={headshot}
+              alt="Personal Portrait"
               className="w-full h-full object-cover"
             />
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4 dark:text-gray-100">Skills & Expertise</h3>
-            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-               <div className="flex justify-between">
-                 <span>Brand Identity Design</span>
-              </div>
-              <div className="flex justify-between">
-                <span>UI/UX Design</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Print & Editorial Design</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Motion Graphics</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Art Direction</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

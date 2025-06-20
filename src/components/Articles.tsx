@@ -38,7 +38,7 @@ const Articles = () => {
   ];
 
   return (
-     <section id="articles" className="py-16 px-6 sm:px-8 bg-[#F0F1F4] dark:bg-gray-800">
+     <section id="articles" className="py-16 px-6 sm:px-8 scroll-mt-16 bg-[#F0F1F4] dark:bg-gray-800">
       <div className="mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100">
@@ -65,8 +65,8 @@ const Articles = () => {
               `}
             >
               <div className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium text-gray-500 bg-[#ECEDEF] group-hover:bg-[#DCDDDF] px-2 py-1 rounded transition-all duration-300 dark:bg-gray-800 dark:text-gray-300 dark:group-hover:bg-[#2B3544]">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+                  <span className="w-fit shrink-0 text-xs font-medium text-gray-500 bg-[#ECEDEF] group-hover:bg-[#DCDDDF] px-2 py-1 rounded transition-all duration-300 dark:bg-gray-800 dark:text-gray-300 dark:group-hover:bg-[#2B3544]">
                     {article.category}
                   </span>
                   <div className="flex items-center text-xs text-gray-500 dark:text-gray-300 space-x-2">
@@ -76,7 +76,6 @@ const Articles = () => {
                     <span>{article.readTime}</span>
                   </div>
                 </div>
-
                 <h3 className={`
                   text-xl font-medium mb-3
                   text-gray-900
@@ -101,7 +100,7 @@ const Articles = () => {
                   dark:text-gray-300
                   transition-colors duration-200
                 `}>
-                  <span>Read Article</span>
+                  <span>Click Here to Read the Full Article</span>
                   <ExternalLink size={14} />
                 </div>
               </div>
