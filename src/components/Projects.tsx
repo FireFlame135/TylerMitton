@@ -6,14 +6,16 @@ const Projects = () => {
     {
       title: "HTML Maze Game",
       category: "HTML, JS, and Game Design",
-      image: "photo-1493397212122-2b85dda8106b",
-      description: "A simple maze game where you can explore infinitely. Built with HTML, CSS, and JavaScript."
+      image: "maze",
+      description: "A simple maze game where you can explore infinitely. Built with HTML, CSS, and JavaScript.",
+      link: "/MazeGame"
     },
     {
       title: "Digital Product Design",
       category: "UI/UX",
       image: "photo-1581091226825-a6a2a5aee158",
-      description: "Mobile app interface design focusing on user experience and accessibility for a meditation platform."
+      description: "Mobile app interface design focusing on user experience and accessibility for a meditation platform.",
+      link: "/PLACEHOLDER.html or whatever"
     },
     // {
     //   title: "Editorial Layout Design",

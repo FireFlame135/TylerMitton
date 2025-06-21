@@ -1,16 +1,27 @@
+// src/components/ProjectCard.tsx
+
+import { Link } from 'react-router-dom';
+import mazeScreenshot from '@/assets/MazeGameScreenshot.png';
+
 interface ProjectCardProps {
   title: string;
   category: string;
   image: string;
   description: string;
+  link?: string;
 }
 
-const ProjectCard = ({ title, category, image, description }: ProjectCardProps) => {
-  return (
-    <div className="group cursor-pointer">
+const ProjectCard = ({ title, category, image, description, link }: ProjectCardProps) => {
+  const imageSrc =
+    image === 'maze'
+      ? mazeScreenshot
+      : `https://images.unsplash.com/${image}?auto=format&fit=crop&w=800&q=80`;
+
+  const CardContent = (
+    <>
       <div className="relative overflow-hidden bg-gray-100 mb-4 aspect-[4/3] dark:bg-gray-800">
         <img
-          src={`https://images.unsplash.com/${image}?auto=format&fit=crop&w=800&q=80`}
+          src={imageSrc}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -27,6 +38,16 @@ const ProjectCard = ({ title, category, image, description }: ProjectCardProps) 
           {description}
         </p>
       </div>
+    </>
+  );
+
+  return link ? (
+    <Link to={link} className="group cursor-pointer block">
+      {CardContent}
+    </Link>
+  ) : (
+    <div className="group cursor-pointer block">
+      {CardContent}
     </div>
   );
 };

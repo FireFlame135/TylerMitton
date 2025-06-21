@@ -53,3 +53,6 @@ bun.lockb
 
 # Ignore this file which is used to plan the next changes
 NextChanges.txt
+
+# Ignore the file with the file tree. This is not auto updated. It is meant for development purposes.
+FileTree.txt
