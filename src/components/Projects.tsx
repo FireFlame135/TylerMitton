@@ -11,7 +11,7 @@ const Projects = () => {
       link: "/MazeGame"
     },
     {
-      title: "Digital Product Design",
+      title: "THIS PROJECT",
       category: "UI/UX",
       image: "photo-1581091226825-a6a2a5aee158",
       description: "Mobile app interface design focusing on user experience and accessibility for a meditation platform.",
