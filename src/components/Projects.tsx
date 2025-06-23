@@ -7,8 +7,8 @@ const Projects = () => {
       title: "HTML Maze Game",
       category: "HTML, JS, and Game Design",
       image: "maze",
-      description: "A simple maze game where you can explore infinitely. Built with HTML, CSS, and JavaScript.",
-      link: "/MazeGame"
+      description: "A simple maze game where you can explore infinitely. Look at my article to learn about the process. Click to play!",
+      link: "/MazeGame/"
     },
     {
       title: "THIS PROJECT",

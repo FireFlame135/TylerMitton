@@ -1,4 +1,3 @@
-
 import { ExternalLink, Calendar } from 'lucide-react';
 
 const Articles = () => {

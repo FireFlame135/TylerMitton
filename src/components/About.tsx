@@ -10,9 +10,7 @@ const About = () => {
           </h2>
           <div className="space-y-6 text-gray-600 leading-relaxed dark:text-gray-400">
             <p>
-              I'm a creative designer with over 8 years of experience crafting 
-              visual narratives that resonate with audiences. My work spans across 
-              branding, digital design, and visual communication.
+              I'm an Alzheimer's disease researcher turned information systems designer. 
             </p>
             <p>
               I believe in the power of thoughtful design to solve complex problems 
@@ -21,7 +19,8 @@ const About = () => {
             </p>
             <p>
               When I'm not designing, you can find me exploring new cities, 
-              practicing photography, or experimenting with sustainable living practices.
+              playing sports outdoors or hiking
+              in the summer, snowboarding in the winter, or playing rocket league.
             </p>
           </div>
         </div>
@@ -32,6 +31,7 @@ const About = () => {
               src={headshot}
               alt="Personal Portrait"
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           </div>
         </div>
