@@ -22,6 +22,7 @@ import {
   Box3,
   Frustum
 } from 'three';
+import { Link } from 'react-router-dom';
 
 const MazeGame: React.FC = () => {
   useEffect(() => {
@@ -258,9 +259,9 @@ const MazeGame: React.FC = () => {
       `}</style>
 
       <div id="game-container">
-        <button id="back-button" onClick={() => (window.location.href = '/')}>
+        <Link id="back-button" to="/">
           <span className="icon">&#8592;</span>Go Back to Website
-        </button>
+        </Link>
 
         <div id="hud">
           Position: <span id="position">0,0,0</span><br/>

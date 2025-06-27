@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 interface ProjectCardProps {
   title: string;
   category: string;
-  image: string; // Just the filename, e.g. "MazeGameScreenshot.avif"
+  image: string; 
   description: string;
   link?: string;
 }
