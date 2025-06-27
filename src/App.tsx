@@ -18,8 +18,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/MazeGame" element={<MazeGame />} />
-
-          {/*<Route path="/MazeGame/*" element={<MazeGame />} />*/}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

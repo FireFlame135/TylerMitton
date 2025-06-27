@@ -1,27 +1,22 @@
-// src/components/ProjectCard.tsx
-
 import { Link } from 'react-router-dom';
-import mazeScreenshot from '@/assets/MazeGameScreenshot.png';
 
 interface ProjectCardProps {
   title: string;
   category: string;
-  image: string;
+  image: string; // Just the filename, e.g. "MazeGameScreenshot.avif"
   description: string;
   link?: string;
 }
 
 const ProjectCard = ({ title, category, image, description, link }: ProjectCardProps) => {
-  const imageSrc =
-    image === 'maze'
-      ? mazeScreenshot
-      : `https://images.unsplash.com/${image}?auto=format&fit=crop&w=800&q=80`;
+  // Construct the image path using the base URL and assets folder
+  const imageSRC = `${import.meta.env.BASE_URL}assets/${image}`;
 
   const CardContent = (
     <>
       <div className="relative overflow-hidden bg-gray-100 mb-4 aspect-[4/3] dark:bg-gray-800">
         <img
-          src={imageSrc}
+          src={imageSRC}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -50,6 +45,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
       {CardContent}
     </div>
   );
+
 };
 
 export default ProjectCard;

@@ -1,44 +1,44 @@
-
 import ProjectCard from './ProjectCard';
 
 const Projects = () => {
   const projects = [
     {
-      title: "HTML Maze Game",
-      category: "HTML, JS, and Game Design",
-      image: "maze",
-      description: "A simple maze game where you can explore infinitely. Look at my article to learn about the process. Click to play!",
+      title: "Maze Game",
+      category: "Game Design",
+      image: "MazeGameScreenshot.avif",
+      description: "A simple maze game where you can explore infinitely. Look at my article to learn about the process. Click to play! Built with React and TypeScript.",
       link: "/MazeGame/"
     },
     {
       title: "THIS PROJECT",
       category: "UI/UX",
-      image: "photo-1581091226825-a6a2a5aee158",
+      image: "PlaceholderImage1.jpg",
       description: "Mobile app interface design focusing on user experience and accessibility for a meditation platform.",
-      link: "/PLACEHOLDER.html or whatever"
+      link: "/PLACEHOLDER.html"
     },
+    // Example placeholder projects:
     // {
     //   title: "Editorial Layout Design",
     //   category: "Print Design",
-    //   image: "photo-1518770660439-4636190af475",
+    //   image: "PlaceholderImage2.jpg",
     //   description: "Magazine layout design for a quarterly architecture publication, balancing typography and visual hierarchy."
     // },
     // {
     //   title: "Website Redesign",
     //   category: "Web Design",
-    //   image: "photo-1498050108023-c5249f4df085",
+    //   image: "PlaceholderImage3.jpg",
     //   description: "Complete website redesign for a creative agency, focusing on portfolio presentation and user engagement."
     // },
     // {
     //   title: "Packaging Design",
     //   category: "Product Design",
-    //   image: "photo-1618160702438-9b02ab6515c9",
+    //   image: "PlaceholderImage4.jpg",
     //   description: "Sustainable packaging design for organic skincare products, emphasizing minimal and eco-friendly approach."
     // },
     // {
     //   title: "Motion Graphics",
     //   category: "Animation",
-    //   image: "photo-1487058792275-0ad4aaf24ca7",
+    //   image: "PlaceholderImage5.jpg",
     //   description: "Animated brand storytelling video for a tech startup's product launch campaign."
     // }
   ];
