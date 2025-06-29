@@ -38,9 +38,20 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
 
   return link ? (
     link.startsWith('#') ? (
-      <a href={link} className="group cursor-pointer block">
+      <button
+        type="button"
+        className="group cursor-pointer block w-full text-left bg-transparent border-none p-0"
+        onClick={e => {
+          e.preventDefault();
+          const id = link.slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+      >
         {CardContent}
-      </a>
+      </button>
     ) : (
       <Link to={link} className="group cursor-pointer block">
         {CardContent}
