@@ -37,9 +37,15 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
   );
 
   return link ? (
-    <Link to={link} className="group cursor-pointer block">
-      {CardContent}
-    </Link>
+    link.startsWith('#') ? (
+      <a href={link} className="group cursor-pointer block">
+        {CardContent}
+      </a>
+    ) : (
+      <Link to={link} className="group cursor-pointer block">
+        {CardContent}
+      </Link>
+    )
   ) : (
     <div className="group cursor-pointer block">
       {CardContent}

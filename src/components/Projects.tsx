@@ -10,11 +10,11 @@ const Projects = () => {
       link: "/MazeGame/"
     },
     {
-      title: "THIS PROJECT",
-      category: "UI/UX",
-      image: "PlaceholderImage1.jpg",
-      description: "Mobile app interface design focusing on user experience and accessibility for a meditation platform.",
-      link: "/PLACEHOLDER.html"
+      title: "Portfolio Website",
+      category: "Frontend Web Design",
+      image: "PortfolioWebsite.avif",
+      description: "A personal portfolio website showcasing my design and development work. Built with React, Tailwind CSS, and TypeScript. Developed with Vite.",
+      link: "#Hero"
     },
     // Example placeholder projects:
     // {
