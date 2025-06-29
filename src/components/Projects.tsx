@@ -6,7 +6,7 @@ const Projects = () => {
       title: "Maze Game",
       category: "Game Design",
       image: "MazeGameScreenshot.avif",
-      description: "A simple maze game where you can explore infinitely. Click to play! Built with React and TypeScript. ",
+      description: "A simple maze game where you can explore infinitely. Click to play! Built with React and TypeScript. Adding a depth first search algorithm soon to ensure a perfect maze.",
       link: "/MazeGame/"
     },
     {

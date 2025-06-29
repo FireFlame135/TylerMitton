@@ -10,12 +10,15 @@ const About = () => {
           </h2>
           <div className="space-y-6 text-gray-600 leading-relaxed dark:text-gray-400">
             <p>
-              I'm an Alzheimer's disease researcher turned information systems designer. 
+              I'm an Alzheimer's disease researcher turned information systems student and designer. 
             </p>
             <p>
-              I believe in the power of thoughtful design to solve complex problems 
-              and create meaningful connections between brands and their communities. 
-              My approach combines strategic thinking with aesthetic sensibility.
+              My experience in scientific research has given me a unique ability to approach problems with an analytical mindset, treating design problems like scientific experiments. 
+            </p>
+            <p>
+              I believe in the power of thoughtful system and data pipeline design to solve problems 
+              and create meaningful connections between products and their communities. 
+              My approach combines strategic function with aesthetic design.
             </p>
             <p>
               When I'm not designing, you can find me exploring new cities, 
