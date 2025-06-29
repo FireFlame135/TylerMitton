@@ -1,4 +1,4 @@
-// src/components/MazeGame.tsx
+// src/components/MazeGameExperiment.tsx
 import React, { useEffect } from 'react';
 import {
   // Import necessary Three.js classes for 3D rendering
@@ -26,7 +26,7 @@ import {
 import { Link } from 'react-router-dom';
 
 // Main MazeGame React functional component
-const MazeGame: React.FC = () => {
+const MazeGameExperiment: React.FC = () => {
   useEffect(() => {
     // === Game constants ===
     const CELL_SIZE = 5;           // Size of each maze cell
@@ -36,6 +36,7 @@ const MazeGame: React.FC = () => {
     const TURN_SPEED = 0.03;       // Player turn speed (keyboard)
     const MOUSE_SENSITIVITY = 0.002; // Mouse look sensitivity
     const MAX_WALL_INSTANCES = 1000; // Max number of wall meshes
+    const CHUNK_SIZE = 16;         // Size of each maze chunk for DFS generation
 
     // === Game state variables ===
     let camera: PerspectiveCamera;
@@ -45,12 +46,210 @@ const MazeGame: React.FC = () => {
     let wallGeometry: BoxGeometry;
     let wallMaterial: MeshStandardMaterial;
     let maze: Record<string, any> = {}; // Stores generated maze cells
-    let playerPosition = { x: 0, y: 1, z: 0 }; // Player's position in world
+    let generatedChunks: Set<string> = new Set(); // Tracks which chunks have been generated
+    let playerPosition = { x: 0, y: 1, z: 0 }; // Player's position in world (starts at 0,0)
     let playerRotation = 0;                   // Player's Y rotation (radians)
     let keysPressed: Record<string, boolean> = {}; // Tracks pressed keys
     let mouseMode = false;                    // Mouse look mode enabled?
     let mouseY = 0;                           // Vertical look angle
     let pointerLocked = false;                // Pointer lock state
+
+    // === Maze Generation Functions ===
+    
+    // Get chunk coordinates for a given cell
+    function getChunkCoords(x: number, z: number): [number, number] {
+      return [Math.floor(x / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE)];
+    }
+
+    // Get chunk key string
+    function getChunkKey(chunkX: number, chunkZ: number): string {
+      return `${chunkX},${chunkZ}`;
+    }
+
+    // Check if a cell position is valid within a chunk
+    function isValidInChunk(x: number, z: number, chunkX: number, chunkZ: number): boolean {
+      const startX = chunkX * CHUNK_SIZE;
+      const startZ = chunkZ * CHUNK_SIZE;
+      return x >= startX && x < startX + CHUNK_SIZE && z >= startZ && z < startZ + CHUNK_SIZE;
+    }
+
+    // Initialize a cell with all walls
+    function initializeCell(x: number, z: number) {
+      const key = `${x},${z}`;
+      if (!maze[key]) {
+        maze[key] = {
+          north: true,
+          east: true,
+          south: true,
+          west: true,
+          visited: false
+        };
+      }
+      return maze[key];
+    }
+
+    // Remove wall between two adjacent cells
+    function removeWall(x1: number, z1: number, x2: number, z2: number) {
+      const cell1 = maze[`${x1},${z1}`];
+      const cell2 = maze[`${x2},${z2}`];
+      
+      if (!cell1 || !cell2) return;
+
+      // Determine direction and remove walls
+      if (x2 > x1) { // Moving east
+        cell1.east = false;
+        cell2.west = false;
+      } else if (x2 < x1) { // Moving west
+        cell1.west = false;
+        cell2.east = false;
+      } else if (z2 > z1) { // Moving south
+        cell1.south = false;
+        cell2.north = false;
+      } else if (z2 < z1) { // Moving north
+        cell1.north = false;
+        cell2.south = false;
+      }
+    }
+
+    // Get unvisited neighbors within the same chunk
+    function getUnvisitedNeighbors(x: number, z: number, chunkX: number, chunkZ: number): [number, number][] {
+      const neighbors: [number, number][] = [];
+      const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // north, east, south, west
+      
+      for (const [dx, dz] of directions) {
+        const nx = x + dx;
+        const nz = z + dz;
+        
+        if (isValidInChunk(nx, nz, chunkX, chunkZ)) {
+          const neighborKey = `${nx},${nz}`;
+          if (maze[neighborKey] && !maze[neighborKey].visited) {
+            neighbors.push([nx, nz]);
+          }
+        }
+      }
+      
+      return neighbors;
+    }
+
+    // DFS maze generation for a chunk
+    function generateChunkDFS(chunkX: number, chunkZ: number) {
+      const startX = chunkX * CHUNK_SIZE;
+      const startZ = chunkZ * CHUNK_SIZE;
+
+      // Initialize all cells in the chunk
+      for (let x = startX; x < startX + CHUNK_SIZE; x++) {
+        for (let z = startZ; z < startZ + CHUNK_SIZE; z++) {
+          initializeCell(x, z);
+        }
+      }
+
+      let dfsStartX: number, dfsStartZ: number;
+
+      if (chunkX === 0 && chunkZ === 0) {
+        // Center spawn in the chunk
+        const spawnX = startX + Math.floor(CHUNK_SIZE / 2);
+        const spawnZ = startZ + Math.floor(CHUNK_SIZE / 2);
+
+        // Mark spawn cell as visited so DFS doesn't touch it
+        const spawnCell = initializeCell(spawnX, spawnZ);
+        spawnCell.visited = true;
+
+        // Start DFS at a different nearby cell (avoid modifying spawn)
+        dfsStartX = spawnX + 1;
+        dfsStartZ = spawnZ;
+        maze[`${dfsStartX},${dfsStartZ}`].visited = true;
+      } else {
+        // Start DFS at top-left of the chunk
+        dfsStartX = startX;
+        dfsStartZ = startZ;
+        maze[`${dfsStartX},${dfsStartZ}`].visited = true;
+      }
+
+      const stack: [number, number][] = [[dfsStartX, dfsStartZ]];
+
+      while (stack.length > 0) {
+        const [currentX, currentZ] = stack[stack.length - 1];
+        const neighbors = getUnvisitedNeighbors(currentX, currentZ, chunkX, chunkZ);
+
+        if (neighbors.length > 0) {
+          const [nextX, nextZ] = neighbors[Math.floor(Math.random() * neighbors.length)];
+          removeWall(currentX, currentZ, nextX, nextZ);
+          maze[`${nextX},${nextZ}`].visited = true;
+          stack.push([nextX, nextZ]);
+        } else {
+          stack.pop();
+        }
+      }
+
+      // Connect this chunk to any already-generated neighbors
+      connectToAdjacentChunks(chunkX, chunkZ);
+    }
+
+    // Connect chunk to adjacent chunks
+    function connectToAdjacentChunks(chunkX: number, chunkZ: number) {
+      const adjacentChunks = [
+        [chunkX - 1, chunkZ], // west
+        [chunkX + 1, chunkZ], // east
+        [chunkX, chunkZ - 1], // north
+        [chunkX, chunkZ + 1]  // south
+      ];
+
+      for (const [adjX, adjZ] of adjacentChunks) {
+        const adjKey = getChunkKey(adjX, adjZ);
+        if (generatedChunks.has(adjKey)) {
+          createChunkConnection(chunkX, chunkZ, adjX, adjZ);
+        }
+      }
+    }
+
+    // Create a connection between two adjacent chunks
+    function createChunkConnection(chunkX1: number, chunkZ1: number, chunkX2: number, chunkZ2: number) {
+      const startX1 = chunkX1 * CHUNK_SIZE;
+      const startZ1 = chunkZ1 * CHUNK_SIZE;
+      const startX2 = chunkX2 * CHUNK_SIZE;
+      const startZ2 = chunkZ2 * CHUNK_SIZE;
+
+      // Determine connection direction and create random connections
+      if (chunkX2 > chunkX1) { // East connection
+        const connectionZ = startZ1 + Math.floor(Math.random() * CHUNK_SIZE);
+        const x1 = startX1 + CHUNK_SIZE - 1;
+        const x2 = startX2;
+        removeWall(x1, connectionZ, x2, connectionZ);
+      } else if (chunkX2 < chunkX1) { // West connection
+        const connectionZ = startZ1 + Math.floor(Math.random() * CHUNK_SIZE);
+        const x1 = startX1;
+        const x2 = startX2 + CHUNK_SIZE - 1;
+        removeWall(x1, connectionZ, x2, connectionZ);
+      } else if (chunkZ2 > chunkZ1) { // South connection
+        const connectionX = startX1 + Math.floor(Math.random() * CHUNK_SIZE);
+        const z1 = startZ1 + CHUNK_SIZE - 1;
+        const z2 = startZ2;
+        removeWall(connectionX, z1, connectionX, z2);
+      } else if (chunkZ2 < chunkZ1) { // North connection
+        const connectionX = startX1 + Math.floor(Math.random() * CHUNK_SIZE);
+        const z1 = startZ1;
+        const z2 = startZ2 + CHUNK_SIZE - 1;
+        removeWall(connectionX, z1, connectionX, z2);
+      }
+    }
+
+    // Generate chunk if it doesn't exist
+    function ensureChunkGenerated(chunkX: number, chunkZ: number) {
+      const chunkKey = getChunkKey(chunkX, chunkZ);
+      if (!generatedChunks.has(chunkKey)) {
+        generateChunkDFS(chunkX, chunkZ);
+        generatedChunks.add(chunkKey);
+      }
+    }
+
+    // === Retrieve or generate a maze cell at (x, z) ===
+    function getCell(x: number, z: number) {
+      const [chunkX, chunkZ] = getChunkCoords(x, z);
+      ensureChunkGenerated(chunkX, chunkZ);
+      
+      const key = `${x},${z}`;
+      return maze[key];
+    }
 
     // === Initialization function ===
     function init() {
@@ -154,28 +353,6 @@ const MazeGame: React.FC = () => {
           Math.PI/2 - 0.1
         );
       }
-    }
-
-    // === Generate a new maze cell with random walls ===
-    function generateMazeCell(x: number, z: number) {
-      const cell = {
-        north: Math.random() > 0.6,
-        east:  Math.random() > 0.6,
-        south: Math.random() > 0.6,
-        west:  Math.random() > 0.6,
-      };
-      // Ensure at least one wall is missing for connectivity
-      if (Object.values(cell).every(v => v)) {
-        const dirs = ['north','east','south','west'] as const;
-        cell[dirs[Math.floor(Math.random()*4)]] = false;
-      }
-      return cell;
-    }
-
-    // === Retrieve or generate a maze cell at (x, z) ===
-    function getCell(x: number, z: number) {
-      const key = `${x},${z}`;
-      return maze[key] ||= generateMazeCell(x, z);
     }
 
     // === Get the world position for a wall in a cell ===
@@ -435,4 +612,4 @@ const MazeGame: React.FC = () => {
   );
 };
 
-export default MazeGame;
+export default MazeGameExperiment;
