@@ -11,7 +11,7 @@ const Projects = () => {
     },
     {
       title: "Portfolio Website",
-      category: "Frontend Web Design",
+      category: "Front-end Web Design",
       image: "PortfolioWebsite.avif",
       description: "A personal portfolio website showcasing my design and development work. Built with React, Tailwind CSS, and TypeScript. Developed with Vite.",
       link: "#Hero"
