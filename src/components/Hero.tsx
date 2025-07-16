@@ -1,7 +1,7 @@
 
 const Hero = () => {
   return (
-    <section id="Hero" className="pt-24 pb-16 px-6 sm:px-8 mx-auto bg-[#E2E4E6] dark:bg-zinc-800">
+    <section id="Hero" className="pt-24 pb-16 px-6 sm:px-8 mx-auto">
       <div className="max-w-4xl">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-gray-900 leading-tight mb-6 dark:text-gray-100">
           Creative Builder

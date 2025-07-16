@@ -27,7 +27,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-16 px-6 scroll-mt-16 sm:px-8 bg-[#E2E4E6] dark:bg-zinc-800">
+    <section id="testimonials" className="py-16 px-6 scroll-mt-16 sm:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100 dark:text-bold">
