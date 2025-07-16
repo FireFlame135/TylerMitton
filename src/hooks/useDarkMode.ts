@@ -7,11 +7,13 @@ type Theme = 'light' | 'dark';
 interface UseDarkModeResult {
   theme: Theme;
   toggleTheme: () => void;
+  isHydrated: boolean;
 }
 
 export default function useDarkMode(): UseDarkModeResult {
   // theme state: 'light' or 'dark'
   const [theme, setTheme] = useState<Theme>('light');
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     // On initial load, read user's stored preference
@@ -24,6 +26,8 @@ export default function useDarkMode(): UseDarkModeResult {
       : 'light';
 
     setTheme(initialTheme);
+    setIsHydrated(true);
+
     // Apply or remove the `dark` class on <html>
     if (initialTheme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -44,5 +48,5 @@ export default function useDarkMode(): UseDarkModeResult {
     localStorage.setItem('theme', newTheme);
   };
 
-  return { theme, toggleTheme };
+  return { theme, toggleTheme, isHydrated };
 }
