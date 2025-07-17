@@ -308,7 +308,6 @@ const MazeGame: React.FC = () => {
     };
   }, []); // This effect runs only once on mount
 
-  // --- CORRECTED ---
   // Effect for managing event listeners and dynamic UI based on device type
   useEffect(() => {
     const state = threeJsState.current;
@@ -334,8 +333,16 @@ const MazeGame: React.FC = () => {
         return newMode;
       });
     };
+    
+    // --- UPDATED TOUCH HANDLERS ---
     const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
+      const targetElement = e.target as HTMLElement;
+      // If the touch starts on a UI element, ignore it and let the browser handle it.
+      if (targetElement.closest('.hud-element')) {
+          return;
+      }
+      e.preventDefault(); // Only prevent default for game interactions.
+
       const { touchState } = state;
       for (const touch of Array.from(e.changedTouches)) {
         const touchPos = new Vector2(touch.clientX, touch.clientY);
@@ -353,36 +360,50 @@ const MazeGame: React.FC = () => {
         }
       }
     };
+
     const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const { touchState } = state;
-      for (const touch of Array.from(e.changedTouches)) {
-        if (touch.identifier === touchState.joystickIdentifier) {
-          touchState.joystickCurrent.set(touch.clientX, touch.clientY);
-        } else if (touch.identifier === touchState.lookTouchIdentifier) {
-          touchState.lookTouchCurrent.set(touch.clientX, touch.clientY);
-          const deltaX = touchState.lookTouchCurrent.x - touchState.lookTouchStart.x;
-          const deltaY = touchState.lookTouchCurrent.y - touchState.lookTouchStart.y;
-          state.playerRotation -= deltaX * TOUCH_SENSITIVITY;
-          state.cameraPitch -= deltaY * TOUCH_SENSITIVITY;
-          state.cameraPitch = MathUtils.clamp(state.cameraPitch, -Math.PI / 2, Math.PI / 2);
-          touchState.lookTouchStart.copy(touchState.lookTouchCurrent);
+        const targetElement = e.target as HTMLElement;
+        // Also ignore moves that might have started on a UI element.
+        if (targetElement.closest('.hud-element')) {
+            return;
         }
-      }
+        e.preventDefault(); // Prevent scrolling while dragging for game controls.
+
+        const { touchState } = state;
+        for (const touch of Array.from(e.changedTouches)) {
+            if (touch.identifier === touchState.joystickIdentifier) {
+            touchState.joystickCurrent.set(touch.clientX, touch.clientY);
+            } else if (touch.identifier === touchState.lookTouchIdentifier) {
+            touchState.lookTouchCurrent.set(touch.clientX, touch.clientY);
+            const deltaX = touchState.lookTouchCurrent.x - touchState.lookTouchStart.x;
+            const deltaY = touchState.lookTouchCurrent.y - touchState.lookTouchStart.y;
+            state.playerRotation -= deltaX * TOUCH_SENSITIVITY;
+            state.cameraPitch -= deltaY * TOUCH_SENSITIVITY;
+            state.cameraPitch = MathUtils.clamp(state.cameraPitch, -Math.PI / 2, Math.PI / 2);
+            touchState.lookTouchStart.copy(touchState.lookTouchCurrent);
+            }
+        }
     };
+
     const handleTouchEnd = (e: TouchEvent) => {
-      e.preventDefault();
-      const { touchState } = state;
-      for (const touch of Array.from(e.changedTouches)) {
-        if (touch.identifier === touchState.joystickIdentifier) {
-          touchState.joystickActive = false;
-          touchState.joystickIdentifier = null;
-          if (joystickThumbRef.current) joystickThumbRef.current.style.transform = `translate(0px, 0px)`;
-          if (joystickBaseRef.current) joystickBaseRef.current.style.opacity = '0.5';
-        } else if (touch.identifier === touchState.lookTouchIdentifier) {
-          touchState.lookTouchIdentifier = null;
+        const targetElement = e.target as HTMLElement;
+        // If the touch ends on a UI element, let the browser synthesize a 'click'.
+        if (targetElement.closest('.hud-element')) {
+            return;
         }
-      }
+        e.preventDefault(); // Only prevent default for game interactions.
+
+        const { touchState } = state;
+        for (const touch of Array.from(e.changedTouches)) {
+            if (touch.identifier === touchState.joystickIdentifier) {
+            touchState.joystickActive = false;
+            touchState.joystickIdentifier = null;
+            if (joystickThumbRef.current) joystickThumbRef.current.style.transform = `translate(0px, 0px)`;
+            if (joystickBaseRef.current) joystickBaseRef.current.style.opacity = '0.5';
+            } else if (touch.identifier === touchState.lookTouchIdentifier) {
+            touchState.lookTouchIdentifier = null;
+            }
+        }
     };
     
     const onWindowResize = () => {
