@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 interface ProjectCardProps {
   title: string;
@@ -13,10 +15,11 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
   const imageSRC = `${import.meta.env.BASE_URL}assets/${image}`;
 
   const CardContent = (
-    <>
+    <div className="flex flex-col h-full bg-transparent">
       <div className="relative overflow-hidden bg-gray-100 mb-4 aspect-[4/3] dark:bg-gray-800">
-        <img
+        <LazyLoadImage
           src={imageSRC}
+          effect="blur"
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -33,7 +36,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
           {description}
         </p>
       </div>
-    </>
+    </div>
   );
 
   return link ? (

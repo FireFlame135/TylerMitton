@@ -1,12 +1,21 @@
 // import { Toaster } from "@/components/ui/toaster";
 // import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Suspense, lazy } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import MazeGame from "./components/MazeGame";
-import MazeGameExperiment from "./components/MazeGameExperiment";
+
+// Lazy load the components to optimize initial load time
+const Index = lazy(() => import('./pages/Index'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const MazeGame = lazy(() => import('./components/MazeGame'));
+const MazeGameExperiment = lazy(() => import('./components/MazeGameExperiment'));
+
+// Uncomment the following in order to load everything at once
+// import Index from "./pages/Index";
+// import NotFound from "./pages/NotFound";
+// import MazeGame from "./components/MazeGame";
+// import MazeGameExperiment from "./components/MazeGameExperiment";
 
 const queryClient = new QueryClient();
 

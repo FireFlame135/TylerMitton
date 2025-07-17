@@ -8,8 +8,13 @@ type DarkModeToggleProps = {
 };
 
 const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
-  const { theme, toggleTheme } = useDarkMode();
+  const { theme, toggleTheme, isHydrated } = useDarkMode();
   const isDark = theme === 'dark';
+
+  // If not hydrated, return a placeholder to avoid flickering
+  if (!isHydrated) {
+    return <div className="h-9 w-[72px]" />; 
+  }
 
   const baseClasses = `
     relative inline-flex items-center

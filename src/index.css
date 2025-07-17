@@ -5,9 +5,9 @@
   Comment out to remove the red outlines.
 */
 
-* {
+/* * {
   outline: 1px solid red !important;
-}
+} */
 
 /* 
   Import Tailwind's base styles, component classes, and utility classes.

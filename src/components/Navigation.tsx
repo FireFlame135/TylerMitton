@@ -3,27 +3,27 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ExternalLink } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
 
+const navItems = [
+  { name: 'Projects', href: '#projects' },
+  { name: 'About', href: '#about' },
+  { name: 'Writings', href: '#articles' },
+  { name: 'Testimonials', href: '#testimonials' },
+  { name: 'Contact', href: '#contact' },
+];
+
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const navItems = [
-    { name: 'Projects', href: '#projects' },
-    { name: 'About', href: '#about' },
-    { name: 'Writings', href: '#articles' },
-    { name: 'Testimonials', href: '#testimonials' },
-    { name: 'Contact', href: '#contact' },
-  ];
-
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (location.pathname === '/') {
-      window.scrollTo({ top: 0,});
+      window.scrollTo({ top: 0 });
     } else {
       navigate('/');
       setTimeout(() => {
-        window.scrollTo({ top: 0,});
+        window.scrollTo({ top: 0 });
       }, 100);
     }
   };

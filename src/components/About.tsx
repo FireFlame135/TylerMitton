@@ -1,6 +1,8 @@
 // const headshotURL = `${import.meta.env.BASE_URL}assets/ProfessionalHeadshot.avif`;
 // const headshotURL = `${import.meta.env.BASE_URL}assets/Professional_Headshot-97kb.avif`;
 const headshotURL = "/TylerMitton/assets/Professional_Headshot-97kb.avif";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const About = () => {
   
@@ -33,11 +35,11 @@ const About = () => {
 
         <div className="space-y-8">
           <div className="aspect-[3/4] max-w-sm mx-auto overflow-hidden rounded-lg shadow">
-            <img
+            <LazyLoadImage
               src={headshotURL}
-              alt="Personal Portrait"
+              effect="blur"
+              alt="Personal Portrait of Tyler Mitton"
               className="w-full h-full object-cover bg-[#E2E4E6] dark:bg-zinc-800"
-              loading="lazy"
             />
           </div>
         </div>

@@ -20,8 +20,10 @@ import {
 } from '@/components/ui/dialog'
 
 // Contact form components
-const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
-const ACCESS_KEY = '83d97da9-fc41-414d-9528-45394bc1976a'
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit' 
+// Yes, this access key is intentionally exposed in the front end. Web3Forms explains why it doesn't matter in their documentation:
+// https://docs.web3forms.com/getting-started/faq
+const ACCESS_KEY = '83d97da9-fc41-414d-9528-45394bc1976a' 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
 
@@ -151,9 +153,9 @@ const Contact: React.FC = () => {
               > 
                 <Mail
                   size={30}
-                  className="text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-100"
+                  className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100"
                 />
-                <span className="text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-100">
+                <span className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100">
                   tylermitton@gmail.com
                 </span>
               </a>
@@ -164,7 +166,7 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="LinkedIn"
-                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiLinkedin size={30} />
               </a>
@@ -173,7 +175,7 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Medium"
-                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiMedium size={30} />
               </a>
@@ -182,7 +184,7 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Instagram"
-                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiInstagram size={30} />
               </a>
