@@ -26,13 +26,15 @@ const App = () => (
       <Sonner />
       Add in if a Toaster or Sonner is ever needed */}
       <BrowserRouter basename="/TylerMitton/">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/MazeGame" element={<MazeGame />} />
-          <Route path="/MazeGameExperiment" element={<MazeGameExperiment />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<div className="min-h-screen bg-[#E2E4E6] dark:bg-zinc-800" />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/MazeGame" element={<MazeGame />} />
+            <Route path="/MazeGameExperiment" element={<MazeGameExperiment />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -20,6 +20,8 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         <LazyLoadImage
           src={imageSRC}
           effect="blur"
+          width="100%"
+          height="100%"
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

@@ -1,615 +1,512 @@
-// src/components/MazeGameExperiment.tsx
-import React, { useEffect } from 'react';
+// src/components/MazeGame.tsx
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  // Import necessary Three.js classes for 3D rendering
-  PerspectiveCamera,
-  Scene,
-  Color,
-  AmbientLight,
-  DirectionalLight,
-  WebGLRenderer,
-  BoxGeometry,
-  MeshStandardMaterial,
-  InstancedMesh,
-  PlaneGeometry,
-  Mesh,
-  DoubleSide,
-  DynamicDrawUsage,
-  MathUtils,
-  Vector3,
-  Matrix4,
-  Quaternion,
-  Euler,
-  Box3,
-  Frustum
+  // Import necessary Three.js classes
+  PerspectiveCamera, Scene, Color, AmbientLight, DirectionalLight, WebGLRenderer,
+  BoxGeometry, MeshStandardMaterial, InstancedMesh, PlaneGeometry, Mesh, DoubleSide,
+  DynamicDrawUsage, Vector3, Matrix4, Quaternion, Box3, Frustum, MathUtils, Vector2
 } from 'three';
 import { Link } from 'react-router-dom';
 
-// Main MazeGame React functional component
-const MazeGameExperiment: React.FC = () => {
+// --- Type Definitions ---
+type MazeCell = {
+  north: boolean; east: boolean; south: boolean; west: boolean; visited: boolean;
+};
+type ControlMode = 'keyboard' | 'mouse';
+
+// --- Constants ---
+const MAZE_SIZE = 30;
+const CELL_SIZE = 5;
+const WALL_HEIGHT = 3;
+const RENDER_DISTANCE = 8;
+const MAX_WALL_INSTANCES = 2000;
+const MOVE_SPEED = 0.1;
+const TURN_SPEED = 0.03;
+const MOUSE_SENSITIVITY = 0.002;
+const TOUCH_SENSITIVITY = 0.003;
+const PLAYER_HEIGHT = 1.0;
+const PLAYER_COLLIDER = new Vector3(0.5, PLAYER_HEIGHT * 2, 0.5);
+const JOYSTICK_AREA_SIZE = 160; // Increased size for better touch accuracy
+const JOYSTICK_DEAD_ZONE = 0.1;
+
+// Reusable Three.js objects
+const wallGeometry = new BoxGeometry(1, 1, 1);
+const wallMaterial = new MeshStandardMaterial({ color: 0x808080 });
+const groundGeometry = new PlaneGeometry(1000, 1000);
+const groundMaterial = new MeshStandardMaterial({ color: 0x3a7e4f, side: DoubleSide });
+
+// --- Better Mobile Detection ---
+// Checks for touch support and lack of hover capability. This correctly identifies
+// mobile devices even in landscape mode, while mostly excluding touchscreen laptops.
+const isProbablyMobile = () => {
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const canHover = window.matchMedia('(hover: hover)').matches;
+    return hasTouch && !canHover;
+};
+
+
+const MazeGame: React.FC = () => {
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<WebGLRenderer | null>(null);
+  const joystickBaseRef = useRef<HTMLDivElement>(null);
+  const joystickThumbRef = useRef<HTMLDivElement>(null);
+  const gameLoopId = useRef<number>();
+
+  const [controlMode, setControlMode] = useState<ControlMode>('keyboard');
+  const [positionDisplay, setPositionDisplay] = useState('0, 0, 0');
+  // Initialize state directly from the detection function
+  const [isMobile, setIsMobile] = useState(isProbablyMobile());
+
+  const threeJsState = useRef({
+    camera: new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000),
+    scene: new Scene(),
+    wallInstances: new InstancedMesh(wallGeometry, wallMaterial, MAX_WALL_INSTANCES),
+    maze: [] as MazeCell[][],
+    playerPosition: new Vector3(CELL_SIZE / 2, PLAYER_HEIGHT, CELL_SIZE / 2),
+    playerRotation: 0, // Yaw
+    cameraPitch: 0,    // Pitch
+    keysPressed: {} as Record<string, boolean>,
+    isPointerLocked: false,
+    touchState: {
+        joystickActive: false,
+        joystickIdentifier: null as number | null,
+        joystickCenter: new Vector2(),
+        joystickCurrent: new Vector2(),
+        lookTouchIdentifier: null as number | null,
+        lookTouchStart: new Vector2(),
+        lookTouchCurrent: new Vector2()
+    }
+  });
+
+  // Effect for ONE-TIME scene setup
   useEffect(() => {
-    // === Game constants ===
-    const CELL_SIZE = 5;           // Size of each maze cell
-    const WALL_HEIGHT = 3;         // Height of each wall
-    const RENDER_DISTANCE = 10;     // How many cells away to render
-    const MOVE_SPEED = 0.1;        // Player movement speed
-    const TURN_SPEED = 0.03;       // Player turn speed (keyboard)
-    const MOUSE_SENSITIVITY = 0.002; // Mouse look sensitivity
-    const MAX_WALL_INSTANCES = 1000; // Max number of wall meshes
-    const CHUNK_SIZE = 16;         // Size of each maze chunk for DFS generation
-
-    // === Game state variables ===
-    let camera: PerspectiveCamera;
-    let scene: Scene;
-    let renderer: WebGLRenderer;
-    let wallInstances: InstancedMesh;
-    let wallGeometry: BoxGeometry;
-    let wallMaterial: MeshStandardMaterial;
-    let maze: Record<string, any> = {}; // Stores generated maze cells
-    let generatedChunks: Set<string> = new Set(); // Tracks which chunks have been generated
-    let playerPosition = { x: 0, y: 1, z: 0 }; // Player's position in world (starts at 0,0)
-    let playerRotation = 0;                   // Player's Y rotation (radians)
-    let keysPressed: Record<string, boolean> = {}; // Tracks pressed keys
-    let mouseMode = false;                    // Mouse look mode enabled?
-    let mouseY = 0;                           // Vertical look angle
-    let pointerLocked = false;                // Pointer lock state
-
-    // === Maze Generation Functions ===
+    const state = threeJsState.current;
     
-    // Get chunk coordinates for a given cell
-    function getChunkCoords(x: number, z: number): [number, number] {
-      return [Math.floor(x / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE)];
-    }
+    const tempMatrix = new Matrix4();
+    const tempQuaternion = new Quaternion();
+    const tempWallBox = new Box3();
+    const tempPlayerBox = new Box3();
+    const tempWallPosition = new Vector3();
+    const tempWallScale = new Vector3();
+    const moveVector = new Vector3();
+    const nextPlayerPos = new Vector3();
 
-    // Get chunk key string
-    function getChunkKey(chunkX: number, chunkZ: number): string {
-      return `${chunkX},${chunkZ}`;
-    }
-
-    // Check if a cell position is valid within a chunk
-    function isValidInChunk(x: number, z: number, chunkX: number, chunkZ: number): boolean {
-      const startX = chunkX * CHUNK_SIZE;
-      const startZ = chunkZ * CHUNK_SIZE;
-      return x >= startX && x < startX + CHUNK_SIZE && z >= startZ && z < startZ + CHUNK_SIZE;
-    }
-
-    // Initialize a cell with all walls
-    function initializeCell(x: number, z: number) {
-      const key = `${x},${z}`;
-      if (!maze[key]) {
-        maze[key] = {
-          north: true,
-          east: true,
-          south: true,
-          west: true,
-          visited: false
-        };
+    const init = () => {
+      if (isMobile && gameContainerRef.current) {
+        gameContainerRef.current.requestFullscreen().catch(err => {
+          console.log(`Fullscreen request failed: ${err.message}`);
+        });
       }
-      return maze[key];
-    }
-
-    // Remove wall between two adjacent cells
-    function removeWall(x1: number, z1: number, x2: number, z2: number) {
-      const cell1 = maze[`${x1},${z1}`];
-      const cell2 = maze[`${x2},${z2}`];
       
-      if (!cell1 || !cell2) return;
+      state.scene.background = new Color(0x87ceeb);
+      state.camera.position.copy(state.playerPosition);
+      state.camera.rotation.order = 'YXZ';
+      state.scene.add(new AmbientLight(0x505050));
+      const dirLight = new DirectionalLight(0xffffff, 0.5);
+      dirLight.position.set(10, 15, 5);
+      state.scene.add(dirLight);
 
-      // Determine direction and remove walls
-      if (x2 > x1) { // Moving east
-        cell1.east = false;
-        cell2.west = false;
-      } else if (x2 < x1) { // Moving west
-        cell1.west = false;
-        cell2.east = false;
-      } else if (z2 > z1) { // Moving south
-        cell1.south = false;
-        cell2.north = false;
-      } else if (z2 < z1) { // Moving north
-        cell1.north = false;
-        cell2.south = false;
+      const renderer = new WebGLRenderer({ antialias: true });
+      // Use the container's client dimensions for the renderer size
+      if (gameContainerRef.current) {
+        renderer.setSize(gameContainerRef.current.clientWidth, gameContainerRef.current.clientHeight);
       }
-    }
+      rendererRef.current = renderer;
+      gameContainerRef.current!.appendChild(renderer.domElement);
 
-    // Get unvisited neighbors within the same chunk
-    function getUnvisitedNeighbors(x: number, z: number, chunkX: number, chunkZ: number): [number, number][] {
-      const neighbors: [number, number][] = [];
-      const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // north, east, south, west
+      generateMaze();
+      state.wallInstances.instanceMatrix.setUsage(DynamicDrawUsage);
+      state.scene.add(state.wallInstances);
+      const ground = new Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      state.scene.add(ground);
       
-      for (const [dx, dz] of directions) {
-        const nx = x + dx;
-        const nz = z + dz;
-        
-        if (isValidInChunk(nx, nz, chunkX, chunkZ)) {
-          const neighborKey = `${nx},${nz}`;
-          if (maze[neighborKey] && !maze[neighborKey].visited) {
-            neighbors.push([nx, nz]);
+      animate();
+    };
+
+    const generateMaze = () => {
+        state.maze = Array.from({ length: MAZE_SIZE }, () =>
+        Array.from({ length: MAZE_SIZE }, () => ({
+          north: true, east: true, south: true, west: true, visited: false
+        }))
+      );
+      const stack: { x: number, z: number }[] = [];
+      let current = { x: 0, z: 0 };
+      state.maze[current.x][current.z].visited = true;
+      let visitedCells = 1;
+    
+      while (visitedCells < MAZE_SIZE * MAZE_SIZE) {
+        const neighbors = [];
+        const { x, z } = current;
+        if (z > 0 && !state.maze[x][z - 1].visited) neighbors.push({ x, z: z - 1, dir: 'north' });
+        if (x < MAZE_SIZE - 1 && !state.maze[x + 1][z].visited) neighbors.push({ x: x + 1, z, dir: 'east' });
+        if (z < MAZE_SIZE - 1 && !state.maze[x][z + 1].visited) neighbors.push({ x, z: z + 1, dir: 'south' });
+        if (x > 0 && !state.maze[x - 1][z].visited) neighbors.push({ x: x - 1, z, dir: 'west' });
+    
+        if (neighbors.length > 0) {
+          const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+          stack.push(current);
+    
+          if (next.dir === 'north') { state.maze[x][z].north = false; state.maze[next.x][next.z].south = false; }
+          else if (next.dir === 'east') { state.maze[x][z].east = false; state.maze[next.x][next.z].west = false; }
+          else if (next.dir === 'south') { state.maze[x][z].south = false; state.maze[next.x][next.z].north = false; }
+          else if (next.dir === 'west') { state.maze[x][z].west = false; state.maze[next.x][next.z].east = false; }
+    
+          current = { x: next.x, z: next.z };
+          state.maze[current.x][current.z].visited = true;
+          visitedCells++;
+        } else if (stack.length > 0) {
+          current = stack.pop()!;
+        } else {
+          let found = false;
+          for (let i = 0; i < MAZE_SIZE && !found; i++) {
+            for (let j = 0; j < MAZE_SIZE && !found; j++) {
+              if (!state.maze[i][j].visited) {
+                current = { x: i, z: j };
+                state.maze[i][j].visited = true;
+                visitedCells++;
+                found = true;
+              }
+            }
           }
         }
       }
-      
-      return neighbors;
-    }
+    };
+    
+    const processInput = () => {
+      moveVector.set(0, 0, 0);
+      const forward = new Vector3(Math.sin(state.playerRotation), 0, Math.cos(state.playerRotation));
+      const right = new Vector3(forward.z, 0, -forward.x);
 
-    // DFS maze generation for a chunk
-    function generateChunkDFS(chunkX: number, chunkZ: number) {
-      const startX = chunkX * CHUNK_SIZE;
-      const startZ = chunkZ * CHUNK_SIZE;
+      if (isMobile && state.touchState.joystickActive) {
+          const { joystickCenter, joystickCurrent } = state.touchState;
+          const offset = joystickCurrent.clone().sub(joystickCenter);
+          const maxOffset = JOYSTICK_AREA_SIZE / 3;
+          let forwardAmount = -offset.y / maxOffset;
+          let strafeAmount = offset.x / maxOffset;
 
-      // Initialize all cells in the chunk
-      for (let x = startX; x < startX + CHUNK_SIZE; x++) {
-        for (let z = startZ; z < startZ + CHUNK_SIZE; z++) {
-          initializeCell(x, z);
-        }
-      }
+          if (Math.abs(forwardAmount) > 1) forwardAmount = Math.sign(forwardAmount);
+          if (Math.abs(strafeAmount) > 1) strafeAmount = Math.sign(strafeAmount);
 
-      let dfsStartX: number, dfsStartZ: number;
-
-      if (chunkX === 0 && chunkZ === 0) {
-        // Center spawn in the chunk
-        const spawnX = startX + Math.floor(CHUNK_SIZE / 2);
-        const spawnZ = startZ + Math.floor(CHUNK_SIZE / 2);
-
-        // Mark spawn cell as visited so DFS doesn't touch it
-        const spawnCell = initializeCell(spawnX, spawnZ);
-        spawnCell.visited = true;
-
-        // Start DFS at a different nearby cell (avoid modifying spawn)
-        dfsStartX = spawnX + 1;
-        dfsStartZ = spawnZ;
-        maze[`${dfsStartX},${dfsStartZ}`].visited = true;
-      } else {
-        // Start DFS at top-left of the chunk
-        dfsStartX = startX;
-        dfsStartZ = startZ;
-        maze[`${dfsStartX},${dfsStartZ}`].visited = true;
-      }
-
-      const stack: [number, number][] = [[dfsStartX, dfsStartZ]];
-
-      while (stack.length > 0) {
-        const [currentX, currentZ] = stack[stack.length - 1];
-        const neighbors = getUnvisitedNeighbors(currentX, currentZ, chunkX, chunkZ);
-
-        if (neighbors.length > 0) {
-          const [nextX, nextZ] = neighbors[Math.floor(Math.random() * neighbors.length)];
-          removeWall(currentX, currentZ, nextX, nextZ);
-          maze[`${nextX},${nextZ}`].visited = true;
-          stack.push([nextX, nextZ]);
+          if (Math.abs(forwardAmount) > JOYSTICK_DEAD_ZONE) moveVector.sub(forward.clone().multiplyScalar(forwardAmount));
+          if (Math.abs(strafeAmount) > JOYSTICK_DEAD_ZONE) moveVector.add(right.clone().multiplyScalar(strafeAmount));
+      } else if (!isMobile) {
+        if (state.keysPressed['w'] || state.keysPressed['arrowup']) moveVector.sub(forward);
+        if (state.keysPressed['s'] || state.keysPressed['arrowdown']) moveVector.add(forward);
+        if (controlMode === 'mouse') {
+          if (state.keysPressed['a'] || state.keysPressed['arrowleft']) moveVector.sub(right);
+          if (state.keysPressed['d'] || state.keysPressed['arrowright']) moveVector.add(right);
         } else {
-          stack.pop();
+          if (state.keysPressed['a'] || state.keysPressed['arrowleft']) state.playerRotation += TURN_SPEED;
+          if (state.keysPressed['d'] || state.keysPressed['arrowright']) state.playerRotation -= TURN_SPEED;
         }
       }
-
-      // Connect this chunk to any already-generated neighbors
-      connectToAdjacentChunks(chunkX, chunkZ);
-    }
-
-    // Connect chunk to adjacent chunks
-    function connectToAdjacentChunks(chunkX: number, chunkZ: number) {
-      const adjacentChunks = [
-        [chunkX - 1, chunkZ], // west
-        [chunkX + 1, chunkZ], // east
-        [chunkX, chunkZ - 1], // north
-        [chunkX, chunkZ + 1]  // south
-      ];
-
-      for (const [adjX, adjZ] of adjacentChunks) {
-        const adjKey = getChunkKey(adjX, adjZ);
-        if (generatedChunks.has(adjKey)) {
-          createChunkConnection(chunkX, chunkZ, adjX, adjZ);
-        }
-      }
-    }
-
-    // Create a connection between two adjacent chunks
-    function createChunkConnection(chunkX1: number, chunkZ1: number, chunkX2: number, chunkZ2: number) {
-      const startX1 = chunkX1 * CHUNK_SIZE;
-      const startZ1 = chunkZ1 * CHUNK_SIZE;
-      const startX2 = chunkX2 * CHUNK_SIZE;
-      const startZ2 = chunkZ2 * CHUNK_SIZE;
-
-      // Determine connection direction and create random connections
-      if (chunkX2 > chunkX1) { // East connection
-        const connectionZ = startZ1 + Math.floor(Math.random() * CHUNK_SIZE);
-        const x1 = startX1 + CHUNK_SIZE - 1;
-        const x2 = startX2;
-        removeWall(x1, connectionZ, x2, connectionZ);
-      } else if (chunkX2 < chunkX1) { // West connection
-        const connectionZ = startZ1 + Math.floor(Math.random() * CHUNK_SIZE);
-        const x1 = startX1;
-        const x2 = startX2 + CHUNK_SIZE - 1;
-        removeWall(x1, connectionZ, x2, connectionZ);
-      } else if (chunkZ2 > chunkZ1) { // South connection
-        const connectionX = startX1 + Math.floor(Math.random() * CHUNK_SIZE);
-        const z1 = startZ1 + CHUNK_SIZE - 1;
-        const z2 = startZ2;
-        removeWall(connectionX, z1, connectionX, z2);
-      } else if (chunkZ2 < chunkZ1) { // North connection
-        const connectionX = startX1 + Math.floor(Math.random() * CHUNK_SIZE);
-        const z1 = startZ1;
-        const z2 = startZ2 + CHUNK_SIZE - 1;
-        removeWall(connectionX, z1, connectionX, z2);
-      }
-    }
-
-    // Generate chunk if it doesn't exist
-    function ensureChunkGenerated(chunkX: number, chunkZ: number) {
-      const chunkKey = getChunkKey(chunkX, chunkZ);
-      if (!generatedChunks.has(chunkKey)) {
-        generateChunkDFS(chunkX, chunkZ);
-        generatedChunks.add(chunkKey);
-      }
-    }
-
-    // === Retrieve or generate a maze cell at (x, z) ===
-    function getCell(x: number, z: number) {
-      const [chunkX, chunkZ] = getChunkCoords(x, z);
-      ensureChunkGenerated(chunkX, chunkZ);
       
-      const key = `${x},${z}`;
-      return maze[key];
-    }
+      moveVector.normalize().multiplyScalar(MOVE_SPEED);
 
-    // === Initialization function ===
-    function init() {
-      // Create the scene and set background color
-      scene = new Scene();
-      scene.background = new Color(0x87ceeb);
+      const currentPos = state.playerPosition;
+      nextPlayerPos.copy(currentPos).add(new Vector3(moveVector.x, 0, 0));
+      if (!isCollidingAt(nextPlayerPos)) currentPos.x = nextPlayerPos.x;
+      nextPlayerPos.copy(currentPos).add(new Vector3(0, 0, moveVector.z));
+      if (!isCollidingAt(nextPlayerPos)) currentPos.z = nextPlayerPos.z;
 
-      // Set up the camera with FOV, aspect, near/far planes
-      camera = new PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      );
-      camera.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+      setPositionDisplay(`${currentPos.x.toFixed(1)}, ${currentPos.y.toFixed(1)}, ${currentPos.z.toFixed(1)}`);
+    };
 
-      // Add ambient and directional lighting to the scene
-      scene.add(new AmbientLight(0x404040));
-      const dirLight = new DirectionalLight(0xffffff, 0.5);
-      dirLight.position.set(5, 3, 1);
-      scene.add(dirLight);
-
-      // Create the WebGL renderer and add it to the DOM
-      renderer = new WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.getElementById('game-container')!.appendChild(renderer.domElement);
-
-      // Create instanced mesh for maze walls
-      wallGeometry = new BoxGeometry(1, 1, 1);
-      wallMaterial = new MeshStandardMaterial({ color: 0x808080 });
-      wallInstances = new InstancedMesh(wallGeometry, wallMaterial, MAX_WALL_INSTANCES);
-      wallInstances.instanceMatrix.setUsage(DynamicDrawUsage);
-      scene.add(wallInstances);
-
-      // Create the ground plane
-      const groundGeo = new PlaneGeometry(1000, 1000);
-      const groundMat = new MeshStandardMaterial({ color: 0x3a7e4f, side: DoubleSide });
-      const ground = new Mesh(groundGeo, groundMat);
-      ground.rotation.x = Math.PI / 2;
-      ground.position.y = -0.5;
-      scene.add(ground);
-
-      // === Event listeners for input and resizing ===
-      window.addEventListener('resize', onWindowResize);
-      window.addEventListener('keydown', e => { keysPressed[e.key.toLowerCase()] = true; });
-      window.addEventListener('keyup',   e => { keysPressed[e.key.toLowerCase()] = false; });
-
-      // Toggle between keyboard and mouse control modes
-      document.getElementById('toggle-mode')!
-        .addEventListener('click', toggleControlMode);
-
-      // Enable pointer lock on canvas click (for mouse look)
-      const canvas = renderer.domElement;
-      canvas.addEventListener('click', () => {
-        if (mouseMode && !pointerLocked) canvas.requestPointerLock();
-      });
-
-      // Listen for pointer lock state changes and mouse movement
-      document.addEventListener('pointerlockchange', pointerLockChange);
-      document.addEventListener('mousemove', onMouseMove);
-
-      // Allow exiting mouse mode with Escape key
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && mouseMode) toggleControlMode();
-      });
-
-      // Start the animation/game loop
-      animate();
-    }
-
-    // === Handle pointer lock state changes ===
-    function pointerLockChange() {
-      pointerLocked = !!document.pointerLockElement;
-      // Show/hide mouse capture notice based on pointer lock
-      document.getElementById('mouse-capture-notice')!.style.display = pointerLocked ? 'block' : 'none';
-    }
-
-    // === Toggle between keyboard and mouse control modes ===
-    function toggleControlMode() {
-      mouseMode = !mouseMode;
-      document.getElementById('control-mode')!.textContent = mouseMode ? 'Mouse' : 'Keyboard';
-      if (mouseMode) renderer.domElement.requestPointerLock();
-      else document.exitPointerLock();
-    }
-
-    // === Handle window resizing to keep aspect ratio ===
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    // === Handle mouse movement for camera look (when in mouse mode) ===
-    function onMouseMove(e: MouseEvent) {
-      if (mouseMode && pointerLocked) {
-        // Adjust player rotation and vertical look angle
-        playerRotation -= e.movementX * MOUSE_SENSITIVITY;
-        mouseY = MathUtils.clamp(
-          mouseY - e.movementY * MOUSE_SENSITIVITY,
-          -Math.PI/2 + 0.1,
-          Math.PI/2 - 0.1
-        );
+    const isCollidingAt = (predictedPos: Vector3): boolean => {
+      tempPlayerBox.setFromCenterAndSize(predictedPos, PLAYER_COLLIDER);
+      const cx = Math.floor(predictedPos.x / CELL_SIZE);
+      const cz = Math.floor(predictedPos.z / CELL_SIZE);
+      for (let x = cx - 1; x <= cx + 1; x++) {
+        for (let z = cz - 1; z <= cz + 1; z++) {
+          if (x < 0 || x >= MAZE_SIZE || z < 0 || z >= MAZE_SIZE) continue;
+          const cell = state.maze[x][z];
+          const checkWall = (dir: 'north' | 'east' | 'south' | 'west') => {
+            if (!cell[dir]) return false;
+            getWallTransform(tempWallPosition, tempWallScale, x, z, dir);
+            tempWallBox.setFromCenterAndSize(tempWallPosition, tempWallScale);
+            return tempPlayerBox.intersectsBox(tempWallBox);
+          };
+          if (checkWall('north') || checkWall('east') || checkWall('south') || checkWall('west')) return true;
+        }
       }
-    }
-
-    // === Get the world position for a wall in a cell ===
-    function getWallPosition(x: number, z: number, dir: string) {
-      const cx = x * CELL_SIZE, cz = z * CELL_SIZE;
-      switch (dir ) {
-        case 'north': return new Vector3(cx+CELL_SIZE/2, WALL_HEIGHT/2-0.5, cz);
-        case 'east':  return new Vector3(cx+CELL_SIZE, WALL_HEIGHT/2-0.5, cz+CELL_SIZE/2);
-        case 'south': return new Vector3(cx+CELL_SIZE/2, WALL_HEIGHT/2-0.5, cz+CELL_SIZE);
-        case 'west':  return new Vector3(cx, WALL_HEIGHT/2-0.5, cz+CELL_SIZE/2);
-      }
-    }
-
-    // === Get the rotation (in radians) for a wall based on direction ===
-    function getWallRotation(dir: string) {
+      return false;
+    };
+    
+    const getWallTransform = (pos: Vector3, scale: Vector3, x: number, z: number, dir: string) => {
+      const cx = x * CELL_SIZE; const cz = z * CELL_SIZE;
+      let wallX, wallZ, scaleX, scaleZ;
       switch (dir) {
-        case 'north': return Math.PI/2;
-        case 'east':  return 0;
-        case 'south': return -Math.PI/2;
-        case 'west':  return Math.PI;
+        case 'north': wallX = cx + CELL_SIZE / 2; wallZ = cz; scaleX = CELL_SIZE; scaleZ = 0.3; break;
+        case 'east': wallX = cx + CELL_SIZE; wallZ = cz + CELL_SIZE / 2; scaleX = 0.3; scaleZ = CELL_SIZE; break;
+        case 'south': wallX = cx + CELL_SIZE / 2; wallZ = cz + CELL_SIZE; scaleX = CELL_SIZE; scaleZ = 0.3; break;
+        case 'west': wallX = cx; wallZ = cz + CELL_SIZE / 2; scaleX = 0.3; scaleZ = CELL_SIZE; break;
+        default: return;
       }
-    }
+      pos.set(wallX, WALL_HEIGHT / 2, wallZ);
+      scale.set(scaleX, WALL_HEIGHT, scaleZ);
+    };
 
-    // === Update the visible maze section based on camera frustum ===
-    function updateMazeSection(frustum: Frustum) {
-      // Center cell coordinates
-      const cx = Math.floor(playerPosition.x / CELL_SIZE),
-            cz = Math.floor(playerPosition.z / CELL_SIZE);
-      const m = new Matrix4();
+    const updateMazeSection = (frustum: Frustum) => {
+      const cx = Math.floor(state.playerPosition.x / CELL_SIZE);
+      const cz = Math.floor(state.playerPosition.z / CELL_SIZE);
       let count = 0;
-
-      // Loop through cells within render distance
-      for (let x = cx - RENDER_DISTANCE; x <= cx + RENDER_DISTANCE; x++) {
-        for (let z = cz - RENDER_DISTANCE; z <= cz + RENDER_DISTANCE; z++) {
-          const cell = getCell(x, z);
-          // For each wall direction, check if wall exists and is visible
-          (['north', 'east', 'south', 'west'] as const).forEach(dir => {
-            if (!cell[dir]) return;
-            const pos = getWallPosition(x, z, dir);
-
-            // Use direction-specific scale so walls stretch along correct axis
-            const scale = (dir === 'north' || dir === 'south')
-              ? new Vector3(0.3, WALL_HEIGHT, CELL_SIZE)
-              : new Vector3(CELL_SIZE, WALL_HEIGHT, 0.3);
-
-            // No rotation needed since scale already defines orientation
-            const quat = new Quaternion(); // Identity rotation (0,0,0)
-
-            // Create bounding box for frustum culling
-            const box = new Box3().setFromCenterAndSize(pos, scale);
-
-            // Only render walls inside the camera frustum and within instance limit
-            if (frustum.intersectsBox(box) && count < MAX_WALL_INSTANCES) {
-              m.compose(pos, quat, scale);
-              wallInstances.setMatrixAt(count++, m);
+      for (let x = cx - RENDER_DISTANCE; x <= cx + RENDER_DISTANCE && count < MAX_WALL_INSTANCES; x++) {
+        for (let z = cz - RENDER_DISTANCE; z <= cz + RENDER_DISTANCE && count < MAX_WALL_INSTANCES; z++) {
+          if (x < 0 || x >= MAZE_SIZE || z < 0 || z >= MAZE_SIZE) continue;
+          const cell = state.maze[x][z];
+          const checkAndSetWall = (dir: 'north' | 'east' | 'south' | 'west') => {
+            if (cell[dir]) {
+              getWallTransform(tempWallPosition, tempWallScale, x, z, dir);
+              tempWallBox.setFromCenterAndSize(tempWallPosition, tempWallScale);
+              if (frustum.intersectsBox(tempWallBox)) {
+                if (count < MAX_WALL_INSTANCES) {
+                  tempMatrix.compose(tempWallPosition, tempQuaternion, tempWallScale);
+                  state.wallInstances.setMatrixAt(count++, tempMatrix);
+                }
+              }
             }
-          });
+          };
+          checkAndSetWall('north'); checkAndSetWall('east'); checkAndSetWall('south'); checkAndSetWall('west');
         }
       }
+      state.wallInstances.count = count;
+      state.wallInstances.instanceMatrix.needsUpdate = true;
+    };
 
-      wallInstances.count = count;
-      wallInstances.instanceMatrix.needsUpdate = true;
+    const updateJoystickUI = () => {
+        if (isMobile && state.touchState.joystickActive && joystickThumbRef.current) {
+            const { joystickCenter, joystickCurrent } = state.touchState;
+            const offset = joystickCurrent.clone().sub(joystickCenter);
+            const maxOffset = JOYSTICK_AREA_SIZE / 3;
+            if (offset.length() > maxOffset) {
+                offset.normalize().multiplyScalar(maxOffset);
+            }
+            joystickThumbRef.current.style.transform = `translate(${offset.x}px, ${offset.y}px)`;
+        }
     }
 
-    // === Process keyboard input for movement and turning ===
-    function processInput() {
-      // Calculate movement deltas based on player rotation
-      const dx = Math.sin(playerRotation) * MOVE_SPEED;
-      const dz = Math.cos(playerRotation) * MOVE_SPEED;
-      let moved = false;
-
-      let moveX = 0;
-      let moveZ = 0;
-
-      // Handle forward/backward input
-      if (keysPressed['w'] || keysPressed['arrowup']) {
-        moveX -= dx;
-        moveZ -= dz;
-        moved = true;
-      }
-      if (keysPressed['s'] || keysPressed['arrowdown']) {
-        moveX += dx;
-        moveZ += dz;
-        moved = true;
-      }
-
-      // Get the player's current cell
-      const cx = Math.floor(playerPosition.x / CELL_SIZE);
-      const cz = Math.floor(playerPosition.z / CELL_SIZE);
-
-      // --- X-axis collision detection ---
-      let nextX = playerPosition.x + moveX;
-      let collidedX = false;
-
-      // Check walls in nearby cells for X collisions
-      for (let x = cx - 1; x <= cx + 1; x++) {
-        for (let z = cz - 1; z <= cz + 1; z++) {
-          const cell = getCell(x, z);
-
-          (['north', 'east', 'south', 'west'] as const).forEach(dir => {
-            if (!cell[dir]) return;
-
-            const pos = getWallPosition(x, z, dir);
-            const size = (dir === 'north' || dir === 'south')
-              ? new Vector3(0.3, WALL_HEIGHT, CELL_SIZE)
-              : new Vector3(CELL_SIZE, WALL_HEIGHT, 0.3);
-
-            const wallBox = new Box3().setFromCenterAndSize(pos, size);
-
-            // Predict where player would be if moved on X
-            const playerBox = new Box3().setFromCenterAndSize(
-              new Vector3(nextX, playerPosition.y, playerPosition.z),
-              new Vector3(0.5, 1.8, 0.5) // Player collider size
-            );
-
-            if (wallBox.intersectsBox(playerBox)) {
-              collidedX = true;
-            }
-          });
-        }
-      }
-
-      // Apply X movement if there's no collision
-      if (!collidedX) {
-        playerPosition.x = nextX;
-      }
-
-      // --- Z-axis collision detection ---
-      let nextZ = playerPosition.z + moveZ;
-      let collidedZ = false;
-
-      // Check walls in nearby cells for Z collisions
-      for (let x = cx - 1; x <= cx + 1; x++) {
-        for (let z = cz - 1; z <= cz + 1; z++) {
-          const cell = getCell(x, z);
-
-          (['north', 'east', 'south', 'west'] as const).forEach(dir => {
-            if (!cell[dir]) return;
-
-            const pos = getWallPosition(x, z, dir);
-            const size = (dir === 'north' || dir === 'south')
-              ? new Vector3(0.3, WALL_HEIGHT, CELL_SIZE)
-              : new Vector3(CELL_SIZE, WALL_HEIGHT, 0.3);
-
-            const wallBox = new Box3().setFromCenterAndSize(pos, size);
-
-            // Predict where player would be if moved on Z
-            const playerBox = new Box3().setFromCenterAndSize(
-              new Vector3(playerPosition.x, playerPosition.y, nextZ),
-              new Vector3(0.5, 1.8, 0.5)
-            );
-
-            if (wallBox.intersectsBox(playerBox)) {
-              collidedZ = true;
-            }
-          });
-        }
-      }
-
-      // Apply Z movement if there's no collision
-      if (!collidedZ) {
-        playerPosition.z = nextZ;
-      }
-
-      // Handle turning (no collision detection needed)
-      if (keysPressed['a'] || keysPressed['arrowleft']) {
-        playerRotation += TURN_SPEED;
-        moved = true;
-      }
-      if (keysPressed['d'] || keysPressed['arrowright']) {
-        playerRotation -= TURN_SPEED;
-        moved = true;
-      }
-
-      // Update on-screen position display
-      document.getElementById('position')!.textContent =
-        `${playerPosition.x.toFixed(1)}, ${playerPosition.y.toFixed(1)}, ${playerPosition.z.toFixed(1)}`;
-
-      return moved;
-    }
-
-    // === Main animation loop ===
-    function animate() {
-      requestAnimationFrame(animate);
+    const animate = () => {
+      gameLoopId.current = requestAnimationFrame(animate);
       processInput();
-
-      // Update camera position and orientation
-      camera.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
-      camera.rotation.set(mouseY, playerRotation, 0, 'YXZ');
-
-      camera.updateMatrixWorld();
-      // Create a frustum for culling walls outside of view
-      const fr = new Frustum().setFromProjectionMatrix(
-        new Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+      state.camera.position.copy(state.playerPosition);
+      state.camera.rotation.set(state.cameraPitch, state.playerRotation, 0);
+      state.camera.updateMatrixWorld();
+      const frustum = new Frustum().setFromProjectionMatrix(
+        new Matrix4().multiplyMatrices(state.camera.projectionMatrix, state.camera.matrixWorldInverse)
       );
+      updateMazeSection(frustum);
+      updateJoystickUI();
+      rendererRef.current!.render(state.scene, state.camera);
+    };
 
-      // Update visible maze section and render the scene
-      updateMazeSection(fr);
-      renderer.render(scene, camera);
-    }
-
-    // === Start the game ===
     init();
-  }, []);
 
-  // === Render the game container and HUD/UI elements ===
+    return () => {
+      if (gameLoopId.current) cancelAnimationFrame(gameLoopId.current);
+      if (document.fullscreenElement) document.exitFullscreen();
+      rendererRef.current?.dispose();
+      state.wallInstances.dispose();
+      if (gameContainerRef.current && rendererRef.current) {
+        gameContainerRef.current.removeChild(rendererRef.current.domElement);
+      }
+    };
+  }, []); // This effect runs only once to set up the scene
+
+  // Effect for managing event listeners based on device type
+  useEffect(() => {
+    const state = threeJsState.current;
+    
+    // --- Define all event handlers here ---
+    const handleKeyDown = (e: KeyboardEvent) => { state.keysPressed[e.key.toLowerCase()] = true; };
+    const handleKeyUp = (e: KeyboardEvent) => { state.keysPressed[e.key.toLowerCase()] = false; };
+    const handleMouseMove = (e: MouseEvent) => {
+      if (state.isPointerLocked) {
+        state.playerRotation -= e.movementX * MOUSE_SENSITIVITY;
+        state.cameraPitch -= e.movementY * MOUSE_SENSITIVITY;
+        state.cameraPitch = MathUtils.clamp(state.cameraPitch, -Math.PI / 2, Math.PI / 2);
+      }
+    };
+    const handlePointerLockChange = () => {
+      state.isPointerLocked = document.pointerLockElement === gameContainerRef.current;
+      if (!state.isPointerLocked) setControlMode('keyboard');
+    };
+    const toggleControlMode = () => {
+      setControlMode(prevMode => {
+        const newMode = prevMode === 'keyboard' ? 'mouse' : 'keyboard';
+        if (newMode === 'mouse') gameContainerRef.current?.requestPointerLock();
+        else document.exitPointerLock();
+        return newMode;
+      });
+    };
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const { touchState } = state;
+      for (const touch of Array.from(e.changedTouches)) {
+        const touchPos = new Vector2(touch.clientX, touch.clientY);
+        // Use window.innerHeight to correctly determine joystick area
+        if (touchPos.x < JOYSTICK_AREA_SIZE && touchPos.y > window.innerHeight - JOYSTICK_AREA_SIZE && touchState.joystickIdentifier === null) {
+          touchState.joystickIdentifier = touch.identifier;
+          touchState.joystickCenter.copy(touchPos);
+          touchState.joystickCurrent.copy(touchPos);
+          touchState.joystickActive = true;
+        } else if (touchState.lookTouchIdentifier === null) {
+          touchState.lookTouchIdentifier = touch.identifier;
+          touchState.lookTouchStart.copy(touchPos);
+          touchState.lookTouchCurrent.copy(touchPos);
+        }
+      }
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const { touchState } = state;
+      for (const touch of Array.from(e.changedTouches)) {
+        if (touch.identifier === touchState.joystickIdentifier) {
+          touchState.joystickCurrent.set(touch.clientX, touch.clientY);
+        } else if (touch.identifier === touchState.lookTouchIdentifier) {
+          touchState.lookTouchCurrent.set(touch.clientX, touch.clientY);
+          const deltaX = touchState.lookTouchCurrent.x - touchState.lookTouchStart.x;
+          const deltaY = touchState.lookTouchCurrent.y - touchState.lookTouchStart.y;
+          state.playerRotation -= deltaX * TOUCH_SENSITIVITY;
+          state.cameraPitch -= deltaY * TOUCH_SENSITIVITY;
+          state.cameraPitch = MathUtils.clamp(state.cameraPitch, -Math.PI / 2, Math.PI / 2);
+          touchState.lookTouchStart.copy(touchState.lookTouchCurrent);
+        }
+      }
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      const { touchState } = state;
+      for (const touch of Array.from(e.changedTouches)) {
+        if (touch.identifier === touchState.joystickIdentifier) {
+          touchState.joystickActive = false;
+          touchState.joystickIdentifier = null;
+          if (joystickThumbRef.current) joystickThumbRef.current.style.transform = `translate(0px, 0px)`;
+        } else if (touch.identifier === touchState.lookTouchIdentifier) {
+          touchState.lookTouchIdentifier = null;
+        }
+      }
+    };
+    
+    // This handler will re-check the device type and update the state
+    const onWindowResize = () => {
+      setIsMobile(isProbablyMobile());
+      const container = gameContainerRef.current;
+      if (rendererRef.current && container) {
+          // Set container height to deal with mobile browser UI
+          container.style.height = `${window.innerHeight}px`;
+          
+          state.camera.aspect = container.clientWidth / container.clientHeight;
+          state.camera.updateProjectionMatrix();
+          rendererRef.current.setSize(container.clientWidth, container.clientHeight);
+      }
+    };
+    
+    // Initial resize call
+    onWindowResize();
+
+    // --- Add and remove listeners based on the current `isMobile` state ---
+    const touchOptions = { passive: false };
+    const toggleButton = document.getElementById('toggle-mode');
+    
+    window.addEventListener('resize', onWindowResize);
+    if (isMobile) {
+      gameContainerRef.current?.addEventListener('touchstart', handleTouchStart, touchOptions);
+      gameContainerRef.current?.addEventListener('touchmove', handleTouchMove, touchOptions);
+      gameContainerRef.current?.addEventListener('touchend', handleTouchEnd, touchOptions);
+    } else {
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('pointerlockchange', handlePointerLockChange);
+      if (toggleButton) toggleButton.addEventListener('click', toggleControlMode);
+    }
+    
+    // The cleanup function for this effect
+    return () => {
+      window.removeEventListener('resize', onWindowResize);
+      if (isMobile) {
+        gameContainerRef.current?.removeEventListener('touchstart', handleTouchStart);
+        gameContainerRef.current?.removeEventListener('touchmove', handleTouchMove);
+        gameContainerRef.current?.removeEventListener('touchend', handleTouchEnd);
+      } else {
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('pointerlockchange', handlePointerLockChange);
+        if (toggleButton) toggleButton.removeEventListener('click', toggleControlMode);
+      }
+    };
+  }, [isMobile]); // Re-run this effect if `isMobile` changes
+
   return (
     <>
       <style>{`
         body { margin:0; overflow:hidden; font-family:Arial,sans-serif; }
-        #game-container { position:relative; width:100vw; height:100vh; background:#000; }
-        #back-button { position:absolute; top:10px; left:10px; padding:10px; background:rgba(0,0,0,0.5);
-          color:#fff; border:1px solid #fff; border-radius:5px; cursor:pointer; z-index:100;
-          display:flex; align-items:center; font-size:14px; }
-        #back-button .icon { margin-right:5px; font-size:16px; }
-        #hud { position:absolute; top:60px; left:10px; color:#fff; background:rgba(0,0,0,0.5);
-          padding:10px; border-radius:5px; z-index:100; }
-        #instructions { position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
-          color:#fff; background:rgba(0,0,0,0.5); padding:10px; border-radius:5px;
-          text-align:center; z-index:100; }
-        #toggle-mode { position:absolute; top:10px; right:10px; padding:10px;
-          background:rgba(0,0,0,0.5); color:#fff; border:1px solid #fff; border-radius:5px;
-          cursor:pointer; z-index:100; }
-        #mouse-capture-notice { display:none; position:absolute; top:50%; left:50%;
-          transform:translate(-50%,-50%); background:rgba(0,0,0,0.7);
-          color:#fff; padding:20px; border-radius:10px; text-align:center; z-index:200; }
+        /* Set container to fill the window and correct height issues on mobile */
+        #game-container { 
+            position:relative; 
+            width:100vw; 
+            /* Height will be set dynamically by JS to avoid 100vh issues */
+            height: 100%; 
+            background:#000; 
+            cursor: default; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .hud-element { position:absolute; background:rgba(0,0,0,0.5); color:#fff; padding:10px; border-radius:5px; z-index:100; user-select: none; }
+        #back-button { top:10px; left:10px; border:1px solid #fff; text-decoration: none; display:flex; align-items:center; cursor: pointer; }
+        #back-button .icon { margin-right:5px; }
+        #hud { top:60px; left:10px; }
+        #instructions { bottom:10px; left:50%; transform:translateX(-50%); text-align:center; padding: 5px 10px; }
+        #toggle-mode { top:10px; right:10px; border:1px solid #fff; cursor:pointer; }
+        
+        #joystick-base {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            background: rgba(128, 128, 128, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            z-index: 110;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #joystick-thumb {
+            width: 60px;
+            height: 60px;
+            background: rgba(220, 220, 220, 0.7);
+            border-radius: 50%;
+        }
       `}</style>
-
-      <div id="game-container">
-        {/* Back button to return to main website */}
-        <Link id="back-button" to="/">
-          <span className="icon">&#8592;</span>Go Back to Website
-        </Link>
-
-        {/* Heads-up display for position and control mode */}
-        <div id="hud">
-          Position: <span id="position">0,0,0</span><br/>
-          Mode: <span id="control-mode">Keyboard</span><br/>
+      <div id="game-container" ref={gameContainerRef}>
+        <Link id="back-button" className="hud-element" to="/"><span className="icon">←</span> Back to Website</Link>
+        <div id="hud" className="hud-element">
+          <div>Position: <span>{positionDisplay}</span></div>
+          {!isMobile && (
+            <div>Mode: {controlMode}</div>
+          )}
         </div>
-
-        {/* Instructions for controls */}
-        <div id="instructions">
-          W/Up Arrow to move forward | S/Down to move back<br/>
-          A/D or ←/→ to turn<br/>
-          Click Toggle Mode for mouse (ESC to exit)
+        <div id="instructions" className="hud-element">
+            {isMobile ? "Use the joystick to move. Drag anywhere else to look." : (
+                controlMode === 'keyboard' ? "W/A/S/D or Arrows to move and turn." : "Mouse to look | W/A/S/D to move/strafe | 'Esc' to release."
+            )}
         </div>
-        {/* Button to toggle control mode */}
-        <button id="toggle-mode">Toggle Control Mode</button>
-        {/* Notice shown when mouse capture is active */}
-        <div id="mouse-capture-notice">
-          Mouse camera control enabled<br/>
-          Move mouse to look around<br/>
-          Press ESC to exit this mode
-        </div>
+        {!isMobile && (
+            <button id="toggle-mode" className="hud-element">
+                Toggle Control Mode
+            </button>
+        )}
+        {isMobile && (
+            <div id="joystick-base" ref={joystickBaseRef}>
+                <div id="joystick-thumb" ref={joystickThumbRef}></div>
+            </div>
+        )}
       </div>
     </>
   );
 };
 
-export default MazeGameExperiment;
+export default MazeGame;
