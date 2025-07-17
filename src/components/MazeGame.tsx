@@ -15,16 +15,18 @@ type MazeCell = {
 type ControlMode = 'keyboard' | 'mouse';
 
 // --- Constants ---
-const MAZE_SIZE = 250;
+const MAZE_SIZE = 150;
 const CELL_SIZE = 5;
 const WALL_HEIGHT = 3;
-const RENDER_DISTANCE = 14;
-const MAX_WALL_INSTANCES = 5000;
-const MOVE_SPEED = 0.09;
-const TURN_SPEED = 0.04;
-const MOUSE_SENSITIVITY = 0.0005;
+const RENDER_DISTANCE = 12;
+const MAX_WALL_INSTANCES = 2000;
+const MOVE_SPEED = 0.08;
+const TURN_SPEED = 0.045;
+const MOUSE_SENSITIVITY = 0.002;
+// MAX_MOUSE_DELTA is no longer critical with smoothing, but can be kept as a safeguard
+const MAX_MOUSE_DELTA = 50;
 const TOUCH_SENSITIVITY = 0.003;
-const PLAYER_HEIGHT = 1.5;
+const PLAYER_HEIGHT = 1.75;
 const PLAYER_COLLIDER = new Vector3(0.5, PLAYER_HEIGHT * 2, 0.5);
 const JOYSTICK_AREA_SIZE = 160;
 const JOYSTICK_DEAD_ZONE = 0.1;
@@ -34,7 +36,7 @@ const PORTRAIT_FOV = 120; // Wider FOV for portrait to avoid "zoom"
 // Reusable Three.js objects
 const wallGeometry = new BoxGeometry(1, 1, 1);
 const wallMaterial = new MeshStandardMaterial({ color: 0x808080 });
-const groundGeometry = new PlaneGeometry(10000, 10000);
+const groundGeometry = new PlaneGeometry(4000, 4000);
 const groundMaterial = new MeshStandardMaterial({ color: 0x3a7e4f, side: DoubleSide });
 
 // --- Better Mobile Detection ---
@@ -73,6 +75,8 @@ const MazeGame: React.FC = () => {
     playerPosition: initialPlayerPosition.clone(),
     playerRotation: 0,
     cameraPitch: 0,
+    targetPlayerRotation: 0,  // <-- NEW: The rotation the camera is smoothly turning towards.
+    targetCameraPitch: 0,     // <-- NEW: The pitch the camera is smoothly turning towards.
     keysPressed: {} as Record<string, boolean>,
     isPointerLocked: false,
     touchState: {
@@ -167,6 +171,8 @@ const MazeGame: React.FC = () => {
     
     const processInput = () => {
       moveVector.set(0, 0, 0);
+      // It's better to use the smoothed playerRotation for movement calculation
+      // to avoid jitter.
       const forward = new Vector3(Math.sin(state.playerRotation), 0, Math.cos(state.playerRotation));
       const right = new Vector3(forward.z, 0, -forward.x);
 
@@ -189,11 +195,13 @@ const MazeGame: React.FC = () => {
           if (state.keysPressed['a'] || state.keysPressed['arrowleft']) moveVector.sub(right);
           if (state.keysPressed['d'] || state.keysPressed['arrowright']) moveVector.add(right);
         } else {
-          if (state.keysPressed['a'] || state.keysPressed['arrowleft']) state.playerRotation += TURN_SPEED;
-          if (state.keysPressed['d'] || state.keysPressed['arrowright']) state.playerRotation -= TURN_SPEED;
+          // --- SOLUTION ---
+          // Instead of directly changing playerRotation, update the target.
+          if (state.keysPressed['a'] || state.keysPressed['arrowleft']) state.targetPlayerRotation += TURN_SPEED;
+          if (state.keysPressed['d'] || state.keysPressed['arrowright']) state.targetPlayerRotation -= TURN_SPEED;
         }
       }
-      
+
       if (moveVector.lengthSq() === 0) return;
       moveVector.normalize().multiplyScalar(MOVE_SPEED);
 
@@ -306,8 +314,21 @@ const MazeGame: React.FC = () => {
       checkAndUpdateFov();
       processInput();
 
-      state.camera.position.copy(state.playerPosition);
+      // --- START: Input Smoothing Implementation --- // <-- NEW SECTION
+      // Adjust this value between 0 and 1. Lower is smoother, higher is more responsive.
+      const smoothingFactor = 0.55;
+
+      // Use lerp to smoothly interpolate the current rotation towards the target rotation.
+      // This prevents jarring jumps from erratic mouse input.
+      state.playerRotation = MathUtils.lerp(state.playerRotation, state.targetPlayerRotation, smoothingFactor);
+      state.cameraPitch = MathUtils.lerp(state.cameraPitch, state.targetCameraPitch, smoothingFactor);
+
+      // Apply the final, smoothed rotation to the camera.
       state.camera.rotation.set(state.cameraPitch, state.playerRotation, 0);
+      // --- END: Input Smoothing Implementation ---
+
+      // Set the camera's position after rotation is calculated.
+      state.camera.position.copy(state.playerPosition);
       
       // Update frustum for culling
       state.camera.updateMatrixWorld();
@@ -344,14 +365,28 @@ const MazeGame: React.FC = () => {
     const handleKeyUp = (e: KeyboardEvent) => { state.keysPressed[e.key.toLowerCase()] = false; };
     const handleMouseMove = (e: MouseEvent) => {
       if (state.isPointerLocked) {
-        state.playerRotation -= e.movementX * MOUSE_SENSITIVITY;
-        state.cameraPitch -= e.movementY * MOUSE_SENSITIVITY;
-        state.cameraPitch = MathUtils.clamp(state.cameraPitch, -Math.PI / 2, Math.PI / 2);
+        // Your clamping is no longer the primary fix, but it's fine to keep as a safeguard
+        const movementX = MathUtils.clamp(e.movementX, -MAX_MOUSE_DELTA, MAX_MOUSE_DELTA);
+        const movementY = MathUtils.clamp(e.movementY, -MAX_MOUSE_DELTA, MAX_MOUSE_DELTA);
+
+        // --- MODIFIED SECTION ---
+        // Instead of directly setting the rotation, we now update the target values.
+        // The animate loop will smoothly interpolate towards these targets.
+        state.targetPlayerRotation -= movementX * MOUSE_SENSITIVITY;
+        state.targetCameraPitch -= movementY * MOUSE_SENSITIVITY;
+
+        // Clamp the target pitch to prevent looking too far up or down.
+        state.targetCameraPitch = MathUtils.clamp(state.targetCameraPitch, -Math.PI / 2, Math.PI / 2);
       }
     };
     const handlePointerLockChange = () => {
       state.isPointerLocked = document.pointerLockElement === gameContainerRef.current;
-      if (!state.isPointerLocked) setControlMode('keyboard');
+      if (!state.isPointerLocked) {
+        setControlMode('keyboard');
+        // When pointer lock is lost, reset target rotation to current rotation to prevent snapping
+        state.targetPlayerRotation = state.playerRotation;
+        state.targetCameraPitch = state.cameraPitch;
+      }
     };
     const toggleControlMode = () => {
       setControlMode(prevMode => {
@@ -397,9 +432,10 @@ const MazeGame: React.FC = () => {
               touchState.lookTouchCurrent.set(touch.clientX, touch.clientY);
               const deltaX = touchState.lookTouchCurrent.x - touchState.lookTouchStart.x;
               const deltaY = touchState.lookTouchCurrent.y - touchState.lookTouchStart.y;
-              state.playerRotation -= deltaX * TOUCH_SENSITIVITY;
-              state.cameraPitch -= deltaY * TOUCH_SENSITIVITY;
-              state.cameraPitch = MathUtils.clamp(state.cameraPitch, -Math.PI / 2, Math.PI / 2);
+              // Touch input can also benefit from smoothing, so we update the targets here too
+              state.targetPlayerRotation -= deltaX * TOUCH_SENSITIVITY; // <-- MODIFIED
+              state.targetCameraPitch -= deltaY * TOUCH_SENSITIVITY;  // <-- MODIFIED
+              state.targetCameraPitch = MathUtils.clamp(state.targetCameraPitch, -Math.PI / 2, Math.PI / 2); // <-- MODIFIED
               touchState.lookTouchStart.copy(touchState.lookTouchCurrent);
             }
         }
@@ -529,10 +565,6 @@ const MazeGame: React.FC = () => {
       <div id="game-container" ref={gameContainerRef}>
         <Link id="back-button" className="hud-element" to="/"><span className="icon">←</span> Back to Website</Link>
         
-        {/* --- CORRECTED CHANGE --- */}
-        {/* This fragment now conditionally renders the Mode display and the Toggle button */}
-        {/* as separate elements, preserving their original CSS positioning. */}
-        {/* They will not be rendered at all on mobile devices. */}
         {!isMobile && (
           <>
             <div id="hud" className="hud-element">
