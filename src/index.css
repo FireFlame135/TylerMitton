@@ -1,3 +1,14 @@
+
+/* 
+  The * selector applies a border to all elements.
+  This is useful for debugging layout issues.
+  Comment out to remove the red outlines.
+*/
+
+* {
+  outline: 1px solid red !important;
+}
+
 /* 
   Import Tailwind's base styles, component classes, and utility classes.
   These directives tell Tailwind to inject its CSS at build time.
