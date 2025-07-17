@@ -29,7 +29,7 @@ const PLAYER_COLLIDER = new Vector3(0.5, PLAYER_HEIGHT * 2, 0.5);
 const JOYSTICK_AREA_SIZE = 160;
 const JOYSTICK_DEAD_ZONE = 0.1;
 const DEFAULT_FOV = 70; // FOV for landscape
-const PORTRAIT_FOV = 100; // Wider FOV for portrait to avoid "zoom"
+const PORTRAIT_FOV = 120; // Wider FOV for portrait to avoid "zoom"
 
 // Reusable Three.js objects
 const wallGeometry = new BoxGeometry(1, 1, 1);
