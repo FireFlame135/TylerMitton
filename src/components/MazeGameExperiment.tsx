@@ -26,8 +26,10 @@ const MOUSE_SENSITIVITY = 0.002;
 const TOUCH_SENSITIVITY = 0.003;
 const PLAYER_HEIGHT = 1.0;
 const PLAYER_COLLIDER = new Vector3(0.5, PLAYER_HEIGHT * 2, 0.5);
-const JOYSTICK_AREA_SIZE = 160; // Increased size for better touch accuracy
+const JOYSTICK_AREA_SIZE = 160;
 const JOYSTICK_DEAD_ZONE = 0.1;
+const DEFAULT_FOV = 75; // FOV for landscape
+const PORTRAIT_FOV = 90; // Wider FOV for portrait to avoid "zoom"
 
 // Reusable Three.js objects
 const wallGeometry = new BoxGeometry(1, 1, 1);
@@ -36,14 +38,11 @@ const groundGeometry = new PlaneGeometry(1000, 1000);
 const groundMaterial = new MeshStandardMaterial({ color: 0x3a7e4f, side: DoubleSide });
 
 // --- Better Mobile Detection ---
-// Checks for touch support and lack of hover capability. This correctly identifies
-// mobile devices even in landscape mode, while mostly excluding touchscreen laptops.
 const isProbablyMobile = () => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const canHover = window.matchMedia('(hover: hover)').matches;
     return hasTouch && !canHover;
 };
-
 
 const MazeGame: React.FC = () => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
@@ -54,17 +53,16 @@ const MazeGame: React.FC = () => {
 
   const [controlMode, setControlMode] = useState<ControlMode>('keyboard');
   const [positionDisplay, setPositionDisplay] = useState('0, 0, 0');
-  // Initialize state directly from the detection function
   const [isMobile, setIsMobile] = useState(isProbablyMobile());
 
   const threeJsState = useRef({
-    camera: new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000),
+    camera: new PerspectiveCamera(DEFAULT_FOV, window.innerWidth / window.innerHeight, 0.1, 1000),
     scene: new Scene(),
     wallInstances: new InstancedMesh(wallGeometry, wallMaterial, MAX_WALL_INSTANCES),
     maze: [] as MazeCell[][],
     playerPosition: new Vector3(CELL_SIZE / 2, PLAYER_HEIGHT, CELL_SIZE / 2),
-    playerRotation: 0, // Yaw
-    cameraPitch: 0,    // Pitch
+    playerRotation: 0,
+    cameraPitch: 0,
     keysPressed: {} as Record<string, boolean>,
     isPointerLocked: false,
     touchState: {
@@ -92,12 +90,6 @@ const MazeGame: React.FC = () => {
     const nextPlayerPos = new Vector3();
 
     const init = () => {
-      if (isMobile && gameContainerRef.current) {
-        gameContainerRef.current.requestFullscreen().catch(err => {
-          console.log(`Fullscreen request failed: ${err.message}`);
-        });
-      }
-      
       state.scene.background = new Color(0x87ceeb);
       state.camera.position.copy(state.playerPosition);
       state.camera.rotation.order = 'YXZ';
@@ -107,7 +99,6 @@ const MazeGame: React.FC = () => {
       state.scene.add(dirLight);
 
       const renderer = new WebGLRenderer({ antialias: true });
-      // Use the container's client dimensions for the renderer size
       if (gameContainerRef.current) {
         renderer.setSize(gameContainerRef.current.clientWidth, gameContainerRef.current.clientHeight);
       }
@@ -157,18 +148,6 @@ const MazeGame: React.FC = () => {
           visitedCells++;
         } else if (stack.length > 0) {
           current = stack.pop()!;
-        } else {
-          let found = false;
-          for (let i = 0; i < MAZE_SIZE && !found; i++) {
-            for (let j = 0; j < MAZE_SIZE && !found; j++) {
-              if (!state.maze[i][j].visited) {
-                current = { x: i, z: j };
-                state.maze[i][j].visited = true;
-                visitedCells++;
-                found = true;
-              }
-            }
-          }
         }
       }
     };
@@ -284,11 +263,27 @@ const MazeGame: React.FC = () => {
             }
             joystickThumbRef.current.style.transform = `translate(${offset.x}px, ${offset.y}px)`;
         }
-    }
+    };
+    
+    const checkAndUpdateFov = () => {
+        const { camera } = state;
+        const isPortrait = camera.aspect < 1;
+
+        if (isPortrait && camera.fov !== PORTRAIT_FOV) {
+            camera.fov = PORTRAIT_FOV;
+            camera.updateProjectionMatrix();
+        } else if (!isPortrait && camera.fov !== DEFAULT_FOV) {
+            camera.fov = DEFAULT_FOV;
+            camera.updateProjectionMatrix();
+        }
+    };
 
     const animate = () => {
       gameLoopId.current = requestAnimationFrame(animate);
+      
+      checkAndUpdateFov();
       processInput();
+
       state.camera.position.copy(state.playerPosition);
       state.camera.rotation.set(state.cameraPitch, state.playerRotation, 0);
       state.camera.updateMatrixWorld();
@@ -311,13 +306,13 @@ const MazeGame: React.FC = () => {
         gameContainerRef.current.removeChild(rendererRef.current.domElement);
       }
     };
-  }, []); // This effect runs only once to set up the scene
+  }, []); // This effect runs only once on mount
 
-  // Effect for managing event listeners based on device type
+  // --- CORRECTED ---
+  // Effect for managing event listeners and dynamic UI based on device type
   useEffect(() => {
     const state = threeJsState.current;
     
-    // --- Define all event handlers here ---
     const handleKeyDown = (e: KeyboardEvent) => { state.keysPressed[e.key.toLowerCase()] = true; };
     const handleKeyUp = (e: KeyboardEvent) => { state.keysPressed[e.key.toLowerCase()] = false; };
     const handleMouseMove = (e: MouseEvent) => {
@@ -344,12 +339,13 @@ const MazeGame: React.FC = () => {
       const { touchState } = state;
       for (const touch of Array.from(e.changedTouches)) {
         const touchPos = new Vector2(touch.clientX, touch.clientY);
-        // Use window.innerHeight to correctly determine joystick area
-        if (touchPos.x < JOYSTICK_AREA_SIZE && touchPos.y > window.innerHeight - JOYSTICK_AREA_SIZE && touchState.joystickIdentifier === null) {
+        // Corrected Joystick Area Check to use the container's dimensions
+        if (touchPos.x < JOYSTICK_AREA_SIZE && touchPos.y > gameContainerRef.current!.clientHeight - JOYSTICK_AREA_SIZE && touchState.joystickIdentifier === null) {
           touchState.joystickIdentifier = touch.identifier;
           touchState.joystickCenter.copy(touchPos);
           touchState.joystickCurrent.copy(touchPos);
           touchState.joystickActive = true;
+          if (joystickBaseRef.current) joystickBaseRef.current.style.opacity = '0.8';
         } else if (touchState.lookTouchIdentifier === null) {
           touchState.lookTouchIdentifier = touch.identifier;
           touchState.lookTouchStart.copy(touchPos);
@@ -382,34 +378,49 @@ const MazeGame: React.FC = () => {
           touchState.joystickActive = false;
           touchState.joystickIdentifier = null;
           if (joystickThumbRef.current) joystickThumbRef.current.style.transform = `translate(0px, 0px)`;
+          if (joystickBaseRef.current) joystickBaseRef.current.style.opacity = '0.5';
         } else if (touch.identifier === touchState.lookTouchIdentifier) {
           touchState.lookTouchIdentifier = null;
         }
       }
     };
     
-    // This handler will re-check the device type and update the state
     const onWindowResize = () => {
-      setIsMobile(isProbablyMobile());
+      // Always re-evaluate mobile status on resize.
+      const currentIsMobile = isProbablyMobile();
+      setIsMobile(currentIsMobile);
+
       const container = gameContainerRef.current;
       if (rendererRef.current && container) {
-          // Set container height to deal with mobile browser UI
-          container.style.height = `${window.innerHeight}px`;
+          // Use the container's client dimensions, which are more reliable.
+          const width = container.clientWidth;
+          const height = container.clientHeight;
           
-          state.camera.aspect = container.clientWidth / container.clientHeight;
-          state.camera.updateProjectionMatrix();
-          rendererRef.current.setSize(container.clientWidth, container.clientHeight);
+          rendererRef.current.setSize(width, height);
+          state.camera.aspect = width / height;
+          
+          // The projection matrix is updated in the animation loop,
+          // so we only need to set the aspect ratio here.
+          // The FOV will adjust automatically in the next frame.
       }
     };
-    
-    // Initial resize call
+
+    // Call once to set initial size and state.
     onWindowResize();
 
-    // --- Add and remove listeners based on the current `isMobile` state ---
     const touchOptions = { passive: false };
     const toggleButton = document.getElementById('toggle-mode');
     
+    // The resize listener should always be active.
     window.addEventListener('resize', onWindowResize);
+    
+    // Use the component's state to control joystick visibility.
+    const joystick = joystickBaseRef.current;
+    if (joystick) {
+        joystick.classList.toggle('joystick-hidden', !isMobile);
+    }
+
+    // Conditionally add listeners based on the current mobile state.
     if (isMobile) {
       gameContainerRef.current?.addEventListener('touchstart', handleTouchStart, touchOptions);
       gameContainerRef.current?.addEventListener('touchmove', handleTouchMove, touchOptions);
@@ -422,42 +433,49 @@ const MazeGame: React.FC = () => {
       if (toggleButton) toggleButton.addEventListener('click', toggleControlMode);
     }
     
-    // The cleanup function for this effect
+    // This cleanup function now runs every time `isMobile` changes,
+    // ensuring we correctly remove the old listeners before adding new ones.
     return () => {
       window.removeEventListener('resize', onWindowResize);
-      if (isMobile) {
-        gameContainerRef.current?.removeEventListener('touchstart', handleTouchStart);
-        gameContainerRef.current?.removeEventListener('touchmove', handleTouchMove);
-        gameContainerRef.current?.removeEventListener('touchend', handleTouchEnd);
-      } else {
-        window.removeEventListener('keydown', handleKeyDown);
-        window.removeEventListener('keyup', handleKeyUp);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('pointerlockchange', handlePointerLockChange);
-        if (toggleButton) toggleButton.removeEventListener('click', toggleControlMode);
-      }
+      
+      // Cleanup all possible listeners to be safe.
+      gameContainerRef.current?.removeEventListener('touchstart', handleTouchStart);
+      gameContainerRef.current?.removeEventListener('touchmove', handleTouchMove);
+      gameContainerRef.current?.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('pointerlockchange', handlePointerLockChange);
+      if (toggleButton) toggleButton.removeEventListener('click', toggleControlMode);
     };
-  }, [isMobile]); // Re-run this effect if `isMobile` changes
+  }, [isMobile]); // This dependency is correct.
 
   return (
     <>
       <style>{`
         body { margin:0; overflow:hidden; font-family:Arial,sans-serif; }
-        /* Set container to fill the window and correct height issues on mobile */
         #game-container { 
             position:relative; 
             width:100vw; 
-            /* Height will be set dynamically by JS to avoid 100vh issues */
-            height: 100%; 
+            /* FIX: Use dvh (dynamic viewport height) for better mobile handling */
+            height: 100dvh;
             background:#000; 
             cursor: default; 
-            -webkit-tap-highlight-color: transparent; 
+            -webkit-tap-highlight-color: transparent; /* Prevents flash on tap */
         }
         .hud-element { position:absolute; background:rgba(0,0,0,0.5); color:#fff; padding:10px; border-radius:5px; z-index:100; user-select: none; }
         #back-button { top:10px; left:10px; border:1px solid #fff; text-decoration: none; display:flex; align-items:center; cursor: pointer; }
         #back-button .icon { margin-right:5px; }
         #hud { top:60px; left:10px; }
-        #instructions { bottom:10px; left:50%; transform:translateX(-50%); text-align:center; padding: 5px 10px; }
+        #instructions { 
+            bottom:10px; 
+            left:50%; 
+            transform:translateX(-50%); 
+            text-align:center; 
+            padding: 5px 10px;
+            /* FIX: Ensure instructions don't block touch events for looking around */
+            pointer-events: none;
+        }
         #toggle-mode { top:10px; right:10px; border:1px solid #fff; cursor:pointer; }
         
         #joystick-base {
@@ -473,12 +491,18 @@ const MazeGame: React.FC = () => {
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: opacity 0.2s;
         }
         #joystick-thumb {
             width: 60px;
             height: 60px;
             background: rgba(220, 220, 220, 0.7);
             border-radius: 50%;
+            transition: transform 0.05s;
+        }
+        /* Class to reliably hide the joystick on non-mobile */
+        .joystick-hidden {
+            display: none !important;
         }
       `}</style>
       <div id="game-container" ref={gameContainerRef}>
@@ -489,21 +513,15 @@ const MazeGame: React.FC = () => {
             <div>Mode: {controlMode}</div>
           )}
         </div>
-        <div id="instructions" className="hud-element">
-            {isMobile ? "Use the joystick to move. Drag anywhere else to look." : (
-                controlMode === 'keyboard' ? "W/A/S/D or Arrows to move and turn." : "Mouse to look | W/A/S/D to move/strafe | 'Esc' to release."
-            )}
-        </div>
         {!isMobile && (
             <button id="toggle-mode" className="hud-element">
                 Toggle Control Mode
             </button>
         )}
-        {isMobile && (
-            <div id="joystick-base" ref={joystickBaseRef}>
-                <div id="joystick-thumb" ref={joystickThumbRef}></div>
-            </div>
-        )}
+        {/* The joystick is always in the DOM; its visibility is controlled by the 'joystick-hidden' class via useEffect. */}
+        <div id="joystick-base" ref={joystickBaseRef}>
+            <div id="joystick-thumb" ref={joystickThumbRef}></div>
+        </div>
       </div>
     </>
   );
