@@ -1,10 +1,10 @@
-// src/components/MazeGame.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import {
   // Import necessary Three.js classes
   PerspectiveCamera, Scene, Color, AmbientLight, DirectionalLight, WebGLRenderer,
   BoxGeometry, MeshStandardMaterial, InstancedMesh, PlaneGeometry, Mesh, DoubleSide,
-  DynamicDrawUsage, Vector3, Matrix4, Quaternion, Box3, Frustum, MathUtils, Vector2
+  DynamicDrawUsage, Vector3, Matrix4, Quaternion, Box3, Frustum, MathUtils, Vector2,
+  Clock // <-- Import the Clock
 } from 'three';
 import { Link } from 'react-router-dom';
 
@@ -20,12 +20,17 @@ const CELL_SIZE = 5;
 const WALL_HEIGHT = 3;
 const RENDER_DISTANCE = 12;
 const MAX_WALL_INSTANCES = 2000;
-const MOVE_SPEED = 0.08;
-const TURN_SPEED = 0.045;
+
+// --- SOLUTION: Frame-rate independent constants ---
+// These values now represent units per SECOND, not per frame.
+const MOVE_SPEED = 5; // Roughly 0.08 * 60fps
+const TURN_SPEED = 2.5; // Roughly 0.045 * 60fps
 const MOUSE_SENSITIVITY = 0.002;
-// MAX_MOUSE_DELTA is no longer critical with smoothing, but can be kept as a safeguard
-const MAX_MOUSE_DELTA = 50;
 const TOUCH_SENSITIVITY = 0.003;
+
+// Safeguard clamp for mouse input (optional but good practice)
+const MAX_MOUSE_DELTA = 50;
+
 const PLAYER_HEIGHT = 1.75;
 const PLAYER_COLLIDER = new Vector3(0.5, PLAYER_HEIGHT * 2, 0.5);
 const JOYSTICK_AREA_SIZE = 160;
@@ -47,7 +52,6 @@ const isProbablyMobile = () => {
 };
 
 // --- Calculate Initial Player Position ---
-// Spawns the player near the center of the maze.
 const initialPlayerCellX = Math.floor(MAZE_SIZE / 2);
 const initialPlayerCellZ = Math.floor(MAZE_SIZE / 2);
 const initialPlayerPosition = new Vector3(
@@ -70,13 +74,14 @@ const MazeGame: React.FC = () => {
   const threeJsState = useRef({
     camera: new PerspectiveCamera(DEFAULT_FOV, window.innerWidth / window.innerHeight, 0.1, 1000),
     scene: new Scene(),
+    clock: new Clock(), // <-- NEW: Clock for tracking delta time
     wallInstances: new InstancedMesh(wallGeometry, wallMaterial, MAX_WALL_INSTANCES),
     maze: [] as MazeCell[][],
     playerPosition: initialPlayerPosition.clone(),
     playerRotation: 0,
     cameraPitch: 0,
-    targetPlayerRotation: 0,  // <-- NEW: The rotation the camera is smoothly turning towards.
-    targetCameraPitch: 0,     // <-- NEW: The pitch the camera is smoothly turning towards.
+    targetPlayerRotation: 0,
+    targetCameraPitch: 0,
     keysPressed: {} as Record<string, boolean>,
     isPointerLocked: false,
     touchState: {
@@ -93,7 +98,7 @@ const MazeGame: React.FC = () => {
   // Effect for ONE-TIME scene setup
   useEffect(() => {
     const state = threeJsState.current;
-    
+
     // --- Pre-allocated objects for the animation loop to improve performance ---
     const tempMatrix = new Matrix4();
     const tempQuaternion = new Quaternion();
@@ -128,10 +133,11 @@ const MazeGame: React.FC = () => {
       const ground = new Mesh(groundGeometry, groundMaterial);
       ground.rotation.x = -Math.PI / 2;
       state.scene.add(ground);
-      
+
+      state.clock.start(); // Start the clock
       animate();
     };
-    
+
     const generateMaze = () => {
         state.maze = Array.from({ length: MAZE_SIZE }, () =>
         Array.from({ length: MAZE_SIZE }, () => ({
@@ -142,7 +148,7 @@ const MazeGame: React.FC = () => {
       let current = { x: 0, z: 0 };
       state.maze[current.x][current.z].visited = true;
       let visitedCells = 1;
-    
+
       while (visitedCells < MAZE_SIZE * MAZE_SIZE) {
         const neighbors = [];
         const { x, z } = current;
@@ -150,16 +156,16 @@ const MazeGame: React.FC = () => {
         if (x < MAZE_SIZE - 1 && !state.maze[x + 1][z].visited) neighbors.push({ x: x + 1, z, dir: 'east' });
         if (z < MAZE_SIZE - 1 && !state.maze[x][z + 1].visited) neighbors.push({ x, z: z + 1, dir: 'south' });
         if (x > 0 && !state.maze[x - 1][z].visited) neighbors.push({ x: x - 1, z, dir: 'west' });
-    
+
         if (neighbors.length > 0) {
           const next = neighbors[Math.floor(Math.random() * neighbors.length)];
           stack.push(current);
-    
+
           if (next.dir === 'north') { state.maze[x][z].north = false; state.maze[next.x][next.z].south = false; }
           else if (next.dir === 'east') { state.maze[x][z].east = false; state.maze[next.x][next.z].west = false; }
           else if (next.dir === 'south') { state.maze[x][z].south = false; state.maze[next.x][next.z].north = false; }
           else if (next.dir === 'west') { state.maze[x][z].west = false; state.maze[next.x][next.z].east = false; }
-    
+
           current = { x: next.x, z: next.z };
           state.maze[current.x][current.z].visited = true;
           visitedCells++;
@@ -168,11 +174,10 @@ const MazeGame: React.FC = () => {
         }
       }
     };
-    
-    const processInput = () => {
+
+    // --- MODIFIED: processInput now accepts deltaTime ---
+    const processInput = (deltaTime: number) => {
       moveVector.set(0, 0, 0);
-      // It's better to use the smoothed playerRotation for movement calculation
-      // to avoid jitter.
       const forward = new Vector3(Math.sin(state.playerRotation), 0, Math.cos(state.playerRotation));
       const right = new Vector3(forward.z, 0, -forward.x);
 
@@ -196,14 +201,17 @@ const MazeGame: React.FC = () => {
           if (state.keysPressed['d'] || state.keysPressed['arrowright']) moveVector.add(right);
         } else {
           // --- SOLUTION ---
-          // Instead of directly changing playerRotation, update the target.
-          if (state.keysPressed['a'] || state.keysPressed['arrowleft']) state.targetPlayerRotation += TURN_SPEED;
-          if (state.keysPressed['d'] || state.keysPressed['arrowright']) state.targetPlayerRotation -= TURN_SPEED;
+          // Update the target rotation, scaled by deltaTime for consistent speed.
+          if (state.keysPressed['a'] || state.keysPressed['arrowleft']) state.targetPlayerRotation += TURN_SPEED * deltaTime;
+          if (state.keysPressed['d'] || state.keysPressed['arrowright']) state.targetPlayerRotation -= TURN_SPEED * deltaTime;
         }
       }
 
       if (moveVector.lengthSq() === 0) return;
-      moveVector.normalize().multiplyScalar(MOVE_SPEED);
+
+      // --- SOLUTION ---
+      // Scale final movement vector by MOVE_SPEED and deltaTime.
+      moveVector.normalize().multiplyScalar(MOVE_SPEED * deltaTime);
 
       const currentPos = state.playerPosition;
       // Check X and Z movement separately for smoother wall sliding
@@ -221,7 +229,6 @@ const MazeGame: React.FC = () => {
         for (let z = cz - 1; z <= cz + 1; z++) {
           if (x < 0 || x >= MAZE_SIZE || z < 0 || z >= MAZE_SIZE) continue;
           const cell = state.maze[x][z];
-          // A helper to reduce code duplication
           const checkWall = (dir: 'north' | 'east' | 'south' | 'west') => {
             if (!cell[dir]) return false;
             getWallTransform(tempWallPosition, tempWallScale, x, z, dir);
@@ -233,7 +240,7 @@ const MazeGame: React.FC = () => {
       }
       return false;
     };
-    
+
     const getWallTransform = (pos: Vector3, scale: Vector3, x: number, z: number, dir: string) => {
       const cx = x * CELL_SIZE; const cz = z * CELL_SIZE;
       let wallX, wallZ, scaleX, scaleZ;
@@ -252,7 +259,7 @@ const MazeGame: React.FC = () => {
       const cx = Math.floor(state.playerPosition.x / CELL_SIZE);
       const cz = Math.floor(state.playerPosition.z / CELL_SIZE);
       let count = 0;
-      tempQuaternion.identity(); // Walls aren't rotated
+      tempQuaternion.identity();
 
       for (let x = cx - RENDER_DISTANCE; x <= cx + RENDER_DISTANCE; x++) {
         for (let z = cz - RENDER_DISTANCE; z <= cz + RENDER_DISTANCE; z++) {
@@ -272,10 +279,7 @@ const MazeGame: React.FC = () => {
               }
             }
           };
-          checkAndSetWall('north');
-          checkAndSetWall('east');
-          checkAndSetWall('south');
-          checkAndSetWall('west');
+          checkAndSetWall('north'); checkAndSetWall('east'); checkAndSetWall('south'); checkAndSetWall('west');
         }
         if (count >= MAX_WALL_INSTANCES) break;
       }
@@ -294,7 +298,7 @@ const MazeGame: React.FC = () => {
             joystickThumbRef.current.style.transform = `translate(${offset.x}px, ${offset.y}px)`;
         }
     };
-    
+
     const checkAndUpdateFov = () => {
         const { camera } = state;
         const isPortrait = camera.aspect < 1;
@@ -311,26 +315,27 @@ const MazeGame: React.FC = () => {
     const animate = () => {
       gameLoopId.current = requestAnimationFrame(animate);
       
+      // --- SOLUTION: Get deltaTime at the start of the loop ---
+      const deltaTime = state.clock.getDelta();
+      
       checkAndUpdateFov();
-      processInput();
+      processInput(deltaTime); // Pass deltaTime to the input handler
 
-      // --- START: Input Smoothing Implementation --- // <-- NEW SECTION
-      // Adjust this value between 0 and 1. Lower is smoother, higher is more responsive.
-      const smoothingFactor = 0.55;
+      // --- SOLUTION: Frame-rate Independent Smoothing ---
+      // This formula ensures the smoothing feels consistent at any frame rate.
+      // A higher 'smoothingConstant' makes the camera more responsive.
+      const smoothingConstant = 20;
+      const timeBasedSmoothingFactor = 1 - Math.exp(-smoothingConstant * deltaTime);
 
-      // Use lerp to smoothly interpolate the current rotation towards the target rotation.
-      // This prevents jarring jumps from erratic mouse input.
-      state.playerRotation = MathUtils.lerp(state.playerRotation, state.targetPlayerRotation, smoothingFactor);
-      state.cameraPitch = MathUtils.lerp(state.cameraPitch, state.targetCameraPitch, smoothingFactor);
+      state.playerRotation = MathUtils.lerp(state.playerRotation, state.targetPlayerRotation, timeBasedSmoothingFactor);
+      state.cameraPitch = MathUtils.lerp(state.cameraPitch, state.targetCameraPitch, timeBasedSmoothingFactor);
+      // --- End of new smoothing logic ---
 
       // Apply the final, smoothed rotation to the camera.
       state.camera.rotation.set(state.cameraPitch, state.playerRotation, 0);
-      // --- END: Input Smoothing Implementation ---
 
-      // Set the camera's position after rotation is calculated.
       state.camera.position.copy(state.playerPosition);
       
-      // Update frustum for culling
       state.camera.updateMatrixWorld();
       projScreenMatrix.multiplyMatrices(state.camera.projectionMatrix, state.camera.matrixWorldInverse);
       frustum.setFromProjectionMatrix(projScreenMatrix);
@@ -365,17 +370,13 @@ const MazeGame: React.FC = () => {
     const handleKeyUp = (e: KeyboardEvent) => { state.keysPressed[e.key.toLowerCase()] = false; };
     const handleMouseMove = (e: MouseEvent) => {
       if (state.isPointerLocked) {
-        // Your clamping is no longer the primary fix, but it's fine to keep as a safeguard
+        // Clamp raw mouse input as a safeguard against huge delta values
         const movementX = MathUtils.clamp(e.movementX, -MAX_MOUSE_DELTA, MAX_MOUSE_DELTA);
         const movementY = MathUtils.clamp(e.movementY, -MAX_MOUSE_DELTA, MAX_MOUSE_DELTA);
 
-        // --- MODIFIED SECTION ---
-        // Instead of directly setting the rotation, we now update the target values.
-        // The animate loop will smoothly interpolate towards these targets.
+        // Update the target values. The animate loop will handle the rest smoothly.
         state.targetPlayerRotation -= movementX * MOUSE_SENSITIVITY;
         state.targetCameraPitch -= movementY * MOUSE_SENSITIVITY;
-
-        // Clamp the target pitch to prevent looking too far up or down.
         state.targetCameraPitch = MathUtils.clamp(state.targetCameraPitch, -Math.PI / 2, Math.PI / 2);
       }
     };
@@ -383,7 +384,7 @@ const MazeGame: React.FC = () => {
       state.isPointerLocked = document.pointerLockElement === gameContainerRef.current;
       if (!state.isPointerLocked) {
         setControlMode('keyboard');
-        // When pointer lock is lost, reset target rotation to current rotation to prevent snapping
+        // Reset target to current rotation to prevent snapping when exiting pointer lock
         state.targetPlayerRotation = state.playerRotation;
         state.targetCameraPitch = state.cameraPitch;
       }
@@ -432,10 +433,11 @@ const MazeGame: React.FC = () => {
               touchState.lookTouchCurrent.set(touch.clientX, touch.clientY);
               const deltaX = touchState.lookTouchCurrent.x - touchState.lookTouchStart.x;
               const deltaY = touchState.lookTouchCurrent.y - touchState.lookTouchStart.y;
-              // Touch input can also benefit from smoothing, so we update the targets here too
-              state.targetPlayerRotation -= deltaX * TOUCH_SENSITIVITY; // <-- MODIFIED
-              state.targetCameraPitch -= deltaY * TOUCH_SENSITIVITY;  // <-- MODIFIED
-              state.targetCameraPitch = MathUtils.clamp(state.targetCameraPitch, -Math.PI / 2, Math.PI / 2); // <-- MODIFIED
+              
+              // Update the target values. The animate loop handles smoothing.
+              state.targetPlayerRotation -= deltaX * TOUCH_SENSITIVITY;
+              state.targetCameraPitch -= deltaY * TOUCH_SENSITIVITY;
+              state.targetCameraPitch = MathUtils.clamp(state.targetCameraPitch, -Math.PI / 2, Math.PI / 2);
               touchState.lookTouchStart.copy(touchState.lookTouchCurrent);
             }
         }
@@ -468,7 +470,7 @@ const MazeGame: React.FC = () => {
           const height = container.clientHeight;
           rendererRef.current.setSize(width, height);
           state.camera.aspect = width / height;
-          // FOV will be adjusted in the next frame by checkAndUpdateFov()
+          // FOV is automatically adjusted in the animate loop
       }
     };
 
@@ -498,7 +500,6 @@ const MazeGame: React.FC = () => {
     
     return () => {
       window.removeEventListener('resize', onWindowResize);
-      
       gameContainerRef.current?.removeEventListener('touchstart', handleTouchStart);
       gameContainerRef.current?.removeEventListener('touchmove', handleTouchMove);
       gameContainerRef.current?.removeEventListener('touchend', handleTouchEnd);
@@ -513,58 +514,21 @@ const MazeGame: React.FC = () => {
   return (
     <>
       <style>{`
+        /* CSS styles remain unchanged */
         body { margin:0; overflow:hidden; font-family:Arial,sans-serif; }
-        #game-container { 
-            position:relative; 
-            width:100vw; 
-            height: 100dvh;
-            background:#000; 
-            cursor: default; 
-            -webkit-tap-highlight-color: transparent;
-        }
+        #game-container { position:relative; width:100vw; height: 100dvh; background:#000; cursor: default; -webkit-tap-highlight-color: transparent; }
         .hud-element { position:absolute; background:rgba(0,0,0,0.5); color:#fff; padding:10px; border-radius:5px; z-index:100; user-select: none; }
         #back-button { top:10px; left:10px; border:1px solid #fff; text-decoration: none; display:flex; align-items:center; cursor: pointer; }
         #back-button .icon { margin-right:5px; }
         #hud { top:60px; left:10px; }
-        #instructions { 
-            bottom:10px; 
-            left:50%; 
-            transform:translateX(-50%); 
-            text-align:center; 
-            padding: 5px 10px;
-            pointer-events: none;
-        }
+        #instructions { bottom:10px; left:50%; transform:translateX(-50%); text-align:center; padding: 5px 10px; pointer-events: none; }
         #toggle-mode { top:10px; right:10px; border:1px solid #fff; cursor:pointer; }
-        
-        #joystick-base {
-            position: absolute;
-            bottom: 30px;
-            left: 30px;
-            width: 120px;
-            height: 120px;
-            background: rgba(128, 128, 128, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            z-index: 110;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.2s;
-        }
-        #joystick-thumb {
-            width: 60px;
-            height: 60px;
-            background: rgba(220, 220, 220, 0.7);
-            border-radius: 50%;
-            transition: transform 0.05s;
-        }
-        .joystick-hidden {
-            display: none !important;
-        }
+        #joystick-base { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; background: rgba(128, 128, 128, 0.5); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 50%; z-index: 110; display: flex; justify-content: center; align-items: center; transition: opacity 0.2s; }
+        #joystick-thumb { width: 60px; height: 60px; background: rgba(220, 220, 220, 0.7); border-radius: 50%; transition: transform 0.05s; }
+        .joystick-hidden { display: none !important; }
       `}</style>
       <div id="game-container" ref={gameContainerRef}>
         <Link id="back-button" className="hud-element" to="/"><span className="icon">←</span> Back to Website</Link>
-        
         {!isMobile && (
           <>
             <div id="hud" className="hud-element">
@@ -575,8 +539,7 @@ const MazeGame: React.FC = () => {
             </button>
           </>
         )}
-
-        <div id="joystick-base" ref={joystickBaseRef}>
+        <div id="joystick-base" ref={joystickBaseRef} className="joystick-hidden">
             <div id="joystick-thumb" ref={joystickThumbRef}></div>
         </div>
       </div>
