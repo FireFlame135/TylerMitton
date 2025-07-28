@@ -10,17 +10,18 @@ export interface Post {
   readTime: string;
   excerpt: string;
   content: string;
+  link?: string; // Add optional link property
 }
 
 // Fetches and parses all posts
 export const getPosts = async (): Promise<Post[]> => {
-  const files = import.meta.glob('/src/posts/*.md', { query: '?raw', import: 'default' });
-  console.log('Files found by glob:', Object.keys(files));
+  // Correct the glob path to be relative to the current file
+  const files = import.meta.glob('../posts/*.md', { query: '?raw', import: 'default' });
 
   const posts = await Promise.all(
     Object.entries(files).map(async ([path, resolver]) => {
-      const rawContent = await resolver();
-      const parsed = matter(rawContent as string);
+      const rawContent = await resolver() as string;
+      const parsed = matter(rawContent);
       const data = parsed.attributes as Record<string, any>;
       const content = parsed.body;
 
@@ -33,6 +34,7 @@ export const getPosts = async (): Promise<Post[]> => {
         category: data.category,
         readTime: data.readTime,
         excerpt: data.excerpt,
+        link: data.link, // Extract link from frontmatter
         content,
       };
     })
@@ -56,6 +58,7 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
       category: data.category,
       readTime: data.readTime,
       excerpt: data.excerpt,
+      link: data.link, // Extract link from frontmatter
       content,
     };
   } catch (error) {

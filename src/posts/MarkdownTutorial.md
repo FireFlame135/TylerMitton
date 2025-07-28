@@ -7,7 +7,7 @@ readTime: "8 min read"
 excerpt: "A comprehensive markdown reference guide with both raw code and rendered examples. Partially generated with ChatGPT"
 ---
 
-Markdown is a lightweight markup language for formatting text. This guide shows every major Markdown feature, with both the raw code and the rendered result, so you can see exactly how to use each one.
+Markdown is a lightweight markup language for formatting text like you see on this page. This guide shows every major Markdown feature, with both the raw code and the rendered result, so you can see exactly how to use each one.
 
 ---
 

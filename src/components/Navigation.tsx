@@ -1,3 +1,4 @@
+// src/components/Navigation.tsx
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ExternalLink } from 'lucide-react';
@@ -19,12 +20,9 @@ const Navigation = () => {
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (location.pathname === '/') {
-      window.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       navigate('/');
-      setTimeout(() => {
-        window.scrollTo({ top: 0 });
-      }, 100);
     }
   };
 
@@ -33,10 +31,18 @@ const Navigation = () => {
     href: string
   ) => {
     e.preventDefault();
+    setIsMenuOpen(false); // Close mobile menu on click
     const id = href.substring(1);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    if (location.pathname === '/') {
+      // If on the homepage, scroll smoothly
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // If on another page, navigate to homepage with hash
+      navigate('/' + href);
     }
   };
 
@@ -44,7 +50,7 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#D4D5D8]/50 backdrop-blur-md border-b border-gray-300 dark:bg-gray-900/60 dark:border-gray-700 transition-all duration-300 shadow-sm">
       <div className="mx-auto px-6 sm:px-8">
         <div className="flex justify-between items-center h-16">
-          <a href="/" onClick={handleLogoClick}>
+          <a href="/" onClick={handleLogoClick} className="cursor-pointer">
             <div className="text-3xl font-medium text-gray-900 dark:text-gray-100">
               Tyler Mitton
             </div>
@@ -90,10 +96,7 @@ const Navigation = () => {
               <a
                 key={item.name}
                 href={item.href}
-                onClick={(e) => {
-                  handleAnchorClick(e, item.href);
-                  setIsMenuOpen(false);
-                }}
+                onClick={(e) => handleAnchorClick(e, item.href)}
                 className="block py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 {item.name}
@@ -103,7 +106,7 @@ const Navigation = () => {
               href="https://docs.google.com/document/d/1HOl5ZWTwaIqmNCdVBol7PW7Ufm9WEhI4/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 text-sm font-medium"
+              className="flex items-center space-x-1 mt-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <span>Résumé</span>
