@@ -6,15 +6,15 @@ const Projects = () => {
       title: "Maze Game",
       category: "Game Design",
       image: "Maze_Game_Screenshot.avif",
-      description: "A simple maze game where you can explore infinitely. Click to play! Built with TypeScript and three.js. Uses a depth first search algorithm to ensure a perfect maze.",
+      description: "A simple maze game where you can explore aimlessly. Click to play! Built with TypeScript and three.js. Uses a depth first search algorithm to ensure a perfect maze.",
       link: "/MazeGame/"
     },
     {
       title: "Portfolio Website",
       category: "Front-end Web Design",
       image: "Website_Article.avif",
-      description: "A personal portfolio website showcasing my design and development work. Built with React, TypeScript, and Tailwind CSS. Developed with Vite.",
-      link: "https://medium.com/@tyler-mitton/how-i-taught-myself-modern-front-end-development-d3ba12f5c04f"
+      description: "This personal portfolio website showcasing my design and development work. Built with React, TypeScript, and Tailwind CSS. Developed with Vite. Click to see my article \"How I Taught Myself Modern Front-End Development\" for more information.",
+      link: "/Articles/how-i-taught-myself-modern-front-end-development"
     },
     // Example placeholder projects:
     // {
