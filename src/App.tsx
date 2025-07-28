@@ -8,12 +8,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Lazy load the components to optimize initial load time
 const Index = lazy(() => import('./pages/Index'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const ArticlesPage = lazy(() => import('./pages/ArticlesPage'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 const MazeGame = lazy(() => import('./components/MazeGame'));
-const MazeGameExperiment = lazy(() => import('./components/MazeGameExperiment'));
 
-// Uncomment the following in order to load everything at once
+// Use the following syntax in order to load everything at once
 // import Index from "./pages/Index";
 // import NotFound from "./pages/NotFound";
+// import ArticlesPage from "./pages/ArticlesPage";
+// import BlogPost from "./pages/BlogPost";
 // import MazeGame from "./components/MazeGame";
 // import MazeGameExperiment from "./components/MazeGameExperiment";
 
@@ -29,8 +32,9 @@ const App = () => (
         <Suspense fallback={<div className="min-h-screen bg-[#E2E4E6] dark:bg-zinc-800" />}>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/Articles" element={<ArticlesPage />} />
+            <Route path="/Articles/:slug" element={<BlogPost />} />
             <Route path="/MazeGame" element={<MazeGame />} />
-            <Route path="/MazeGameExperiment" element={<MazeGameExperiment />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
