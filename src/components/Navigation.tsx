@@ -71,7 +71,7 @@ const Navigation = () => {
             ))}
 
             <a
-              href="https://docs.google.com/document/d/1HOl5ZWTwaIqmNCdVBol7PW7Ufm9WEhI4/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
+              href="https://docs.google.com/document/d/1Rvqc8I2e5q534Ne93OOxAZyFzpwbHHpu/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-900 transition-all duration-300 transform hover:scale-105 text-sm font-medium dark:bg-gray-700 dark:hover:bg-gray-500"
