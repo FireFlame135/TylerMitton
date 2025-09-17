@@ -10,7 +10,7 @@ const About = () => {
     <section id="about" data-theme-section className="py-16 px-6 sm:px-8 mx-auto scroll-mt-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-6 dark:text-gray-100">
+          <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-6 dark:text-gray-100">
             About Me
           </h2>
           <div className="space-y-6 text-gray-600 leading-relaxed dark:text-gray-400">

@@ -4,7 +4,7 @@ const Testimonials = () => {
     {
       quote: (
         <>
-        Tyler has demonstrated remarkable <span className="font-black text-black dark:text-gray-50">initiative</span> and <span className="font-black text-black dark:text-gray-50">dedication</span>. He has been required to <span className="font-black text-black dark:text-gray-50">learn independently</span> and has done remarkably. One of Tyler's standout qualities is his consistency and dependability. He is someone that I can always count on. He takes ownership of his tasks and shows a <span className="font-black text-black dark:text-gray-50">genuine eagerness</span> to learn and grow.
+        Tyler has demonstrated remarkable <span className="font-bold text-black dark:text-gray-50">initiative</span> and <span className="font-bold text-black dark:text-gray-50">dedication</span>. He has been required to <span className="font-bold text-black dark:text-gray-50">learn independently</span> and has done remarkably. One of Tyler's standout qualities is his consistency and dependability. He is someone that I can always count on. He takes ownership of his tasks and shows a <span className="font-bold text-black dark:text-gray-50">genuine eagerness</span> to learn and grow.
         </>
       ),
       author: "Coleman Nielsen",
@@ -13,7 +13,7 @@ const Testimonials = () => {
     {
       quote: (
         <>
-          In my year working with Tyler, he was a <span className="font-black text-black dark:text-gray-50">huge asset</span> and I had a pleasure working with him! Tyler excels at taking initiative, and his superpower is his focus on designing for the user. He was able to carefully consider high level project details and context as he built the lower level details of the courses. Tyler always retained an <span className="font-black text-black dark:text-gray-50">impressive attention to detail</span> and exceeded expectations.  It was very clear that Tyler has a <span className="font-black text-black dark:text-gray-50">passion and enthusiasm for design!</span>
+          In my year working with Tyler, he was a <span className="font-bold text-black dark:text-gray-50">huge asset</span> and I had a pleasure working with him! Tyler excels at taking initiative, and his superpower is his focus on designing for the user. He was able to carefully consider high level project details and context as he built the lower level details of the courses. Tyler always retained an <span className="font-bold text-black dark:text-gray-50">impressive attention to detail</span> and exceeded expectations.  It was very clear that Tyler has a <span className="font-bold text-black dark:text-gray-50">passion and enthusiasm for design!</span>
         </>
       ),
       author: "Abigail Boekweg",
@@ -30,7 +30,7 @@ const Testimonials = () => {
     <section id="testimonials" className="py-16 px-6 scroll-mt-16 sm:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100 dark:text-bold">
+          <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100 dark:text-bold">
             What Others Say
           </h2>
           <p className="text-lg text-gray-600 mx-auto dark:text-gray-400">
@@ -57,7 +57,7 @@ const Testimonials = () => {
                 "{testimonial.quote}"
               </blockquote>
               <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
-                <div className="font-medium text-gray-900 dark:text-gray-200">
+                <div className="font-normal text-gray-900 dark:text-gray-200">
                   {testimonial.author}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">

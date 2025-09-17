@@ -46,7 +46,7 @@ const Projects = () => {
   return (
     <section id="projects" className="py-16 px-6 sm:px-8 mx-auto scroll-mt-16 bg-[#F0F1F4] dark:bg-gray-800">
       <div className="mb-12">
-        <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100">
+        <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100">
           Selected Projects
         </h2>
         <p className="text-gray-600 max-w-2xl dark:text-gray-400">

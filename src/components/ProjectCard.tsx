@@ -28,10 +28,10 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
       </div>
       <div className="space-y-2">
-        <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium">
+        <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide font-normal">
           {category}
         </p>
-        <h3 className="text-xl font-medium text-gray-900 group-hover:text-gray-600 dark:text-gray-200 transition-colors duration-200">
+        <h3 className="text-xl font-normal text-gray-900 group-hover:text-gray-600 dark:text-gray-200 transition-colors duration-200">
           {title}
         </h3>
         <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">

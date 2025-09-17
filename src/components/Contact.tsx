@@ -130,7 +130,7 @@ const Contact: React.FC = () => {
       <div className="grid lg:grid-cols-2 gap-12">
         {/* Contact info + social links */}
         <div>
-          <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-6 dark:text-gray-100"> 
+          <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-6 dark:text-gray-100"> 
             Let's Connect!
           </h2>
           <p className="text-lg text-gray-600 mb-8 leading-relaxed dark:text-gray-400">
@@ -194,7 +194,7 @@ const Contact: React.FC = () => {
 
         {/* The Form */}
         <div className="bg-[#D4D5D8] p-8 rounded-lg dark:bg-gray-900">
-          <h3 className="text-xl font-medium text-gray-900 mb-6 dark:text-gray-200 dark:font-bold">
+          <h3 className="text-xl font-normal text-gray-900 mb-6 dark:text-gray-200 dark:font-bold">
             Send a Message
           </h3>
           <form onSubmit={handleSubmit} noValidate className="space-y-6">

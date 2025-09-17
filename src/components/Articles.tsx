@@ -41,7 +41,7 @@ const Articles = () => {
     <section id="articles" className="py-16 px-6 sm:px-8 scroll-mt-16 bg-[#F0F1F4] dark:bg-gray-800">
       <div className="mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-light text-gray-900 mb-4 dark:text-gray-100">
+          <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100">
             Writings, Thoughts, & Insights
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
