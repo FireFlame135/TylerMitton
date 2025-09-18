@@ -230,6 +230,7 @@ const Contact: React.FC = () => {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="johndoe@example.com"
                 required
+                autoComplete="email"
               />
               {emailError && <p className="text-sm text-red-600 mt-1">{emailError}</p>}
             </div>
@@ -242,6 +243,7 @@ const Contact: React.FC = () => {
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 placeholder="(123) 456-7890"
+                autoCapitalize="tel"
               />
               {phoneError && <p className="text-sm text-red-600 mt-1">{phoneError}</p>}
             </div>
