@@ -10,10 +10,11 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const ArticlesPage = lazy(() => import('./pages/ArticlesPage'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const MazeGame = lazy(() => import('./components/MazeGame'));
+const LinkedInRedirect = lazy(() => import('./components/LinkedIn'));
 
 const queryClient = new QueryClient();
 
-// Create a root layout component that includes the Suspense fallback and ScrollRestoration
+// Create a root layout component that includes the <Suspense> fallback and ScrollRestoration
 const RootLayout = () => (
   <Suspense fallback={<div className="min-h-screen bg-[#E2E4E6] dark:bg-zinc-800" />}>
     <Outlet />
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: "/Articles/:slug", element: <BlogPost /> },
       { path: "/MazeGame", element: <MazeGame /> },
       { path: "*", element: <NotFound /> },
+      { path: "/LinkedIn", element: <LinkedInRedirect /> },
     ],
   },
 ], {
