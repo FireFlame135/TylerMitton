@@ -1,10 +1,63 @@
-import { defineConfig } from "vite"; 
+// import { defineConfig } from "vite"; 
+// import react from "@vitejs/plugin-react-swc";
+// import path from "path";
+// import { VitePWA } from 'vite-plugin-pwa'
+
+// export default defineConfig(({ mode }) => ({
+//   base: '/TylerMitton/', 
+//   server: {
+//     host: "::",
+//     port: 8080,
+//   },
+//   resolve: {
+//     alias: {
+//       "@": path.resolve(__dirname, "./src"),
+//     },
+//   },
+//   plugins: [
+//     VitePWA({
+//       registerType: 'autoUpdate',
+//       workbox: {
+//         runtimeCaching: [
+//           {
+//             urlPattern: ({ url }) => url.origin === 'https://fireflame135.github.io',
+//             handler: 'CacheFirst',
+//             options: {
+//               cacheName: 'my-site-assets',
+//               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 90 }, // 90 days
+//             },
+//           },
+//         ],
+//       },
+//     }),
+//   ],
+// }));
+
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA } from "vite-plugin-pwa";
+import Critters from "critters";
+
+// Remove the invalid module augmentation and instead provide a module declaration for "critters"
+declare module "critters" {
+  interface CrittersOptions {
+    preload?: "swap" | "js" | "media" | false;
+    compress?: boolean;
+    pruneSource?: boolean;
+    [key: string]: any;
+  }
+
+  class Critters {
+    constructor(options?: CrittersOptions);
+    process(html: string): Promise<string>;
+  }
+
+  export = Critters;
+}
 
 export default defineConfig(({ mode }) => ({
-  base: '/TylerMitton/', 
+  base: "/TylerMitton/",
   server: {
     host: "::",
     port: 8080,
@@ -15,20 +68,42 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: "autoUpdate",
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.origin === 'https://fireflame135.github.io',
-            handler: 'CacheFirst',
+            urlPattern: ({ url }) =>
+              url.origin === "https://fireflame135.github.io",
+            handler: "CacheFirst",
             options: {
-              cacheName: 'my-site-assets',
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 90 }, // 90 days
+              cacheName: "my-site-assets",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 90,
+              },
             },
           },
         ],
       },
     }),
+    {
+      name: "vite-plugin-critters",
+      enforce: "post",
+      apply: "build",
+      async generateBundle(_, bundle) {
+        const critters = new Critters({
+          preload: "swap",
+          compress: true,
+          pruneSource: true,
+        });
+        for (const [fileName, asset] of Object.entries(bundle)) {
+          if (fileName.endsWith(".html") && "source" in asset) {
+            asset.source = await critters.process(asset.source as string);
+          }
+        }
+      },
+    },
   ],
 }));
