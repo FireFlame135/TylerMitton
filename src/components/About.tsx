@@ -1,13 +1,16 @@
-// const headshotURL = `${import.meta.env.BASE_URL}assets/ProfessionalHeadshot.avif`;
-// const headshotURL = `${import.meta.env.BASE_URL}assets/Professional_Headshot-97kb.avif`;
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
+
 const headshotURL = "/TylerMitton/assets/Professional_Headshot-97kb.avif";
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
+const headshotURL_large = "/TylerMitton/assets/Professional_Headshot-191kb.avif";
 
 const About = () => {
-  
   return (
-    <section id="about" data-theme-section className="py-16 px-6 sm:px-8 mx-auto scroll-mt-16">
+    <section
+      id="about"
+      data-theme-section
+      className="py-16 px-6 sm:px-8 mx-auto scroll-mt-16"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         <div>
           <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-6 dark:text-gray-100">
@@ -15,20 +18,24 @@ const About = () => {
           </h2>
           <div className="space-y-6 text-gray-600 leading-relaxed dark:text-gray-400">
             <p>
-              I'm an Alzheimer's disease researcher turned information systems student and designer. 
+              I'm an Alzheimer's disease researcher turned information systems
+              student and designer.
             </p>
             <p>
-              My experience in scientific research has given me a unique ability to approach problems with an analytical mindset, treating design problems like scientific experiments. 
+              My experience in scientific research has given me a unique ability
+              to approach problems with an analytical mindset, treating design
+              problems like scientific experiments.
             </p>
             <p>
-              I believe in the power of thoughtful system and data pipeline design to solve problems 
-              and create meaningful connections between products and their communities. 
-              My approach combines strategic function with aesthetic design.
+              I believe in the power of thoughtful system and data pipeline
+              design to solve problems and create meaningful connections between
+              products and their communities. My approach combines strategic
+              function with aesthetic design.
             </p>
             <p>
-              When I'm not designing, you can find me exploring new cities, 
-              playing sports outdoors or hiking
-              in the summer, snowboarding in the winter, or playing rocket league.
+              When I'm not designing, you can find me exploring new cities,
+              playing sports outdoors or hiking in the summer, snowboarding in
+              the winter, or playing rocket league.
             </p>
           </div>
         </div>
@@ -37,9 +44,18 @@ const About = () => {
           <div className="aspect-[3/4] max-w-sm mx-auto overflow-hidden rounded-lg shadow">
             <LazyLoadImage
               src={headshotURL}
-              effect="blur"
               alt="Personal Portrait of Tyler Mitton"
+              effect="blur"
               className="w-full h-full object-cover bg-[#E2E4E6] dark:bg-zinc-800"
+              // Important performance tweaks:
+              width={400} 
+              height={533}
+              fetchpriority="high" 
+              loading="eager" 
+              decoding="async"
+              srcSet="/TylerMitton/assets/Professional_Headshot-97kb.avif 400w,
+                      /TylerMitton/assets/Professional_Headshot-191kb.avif 800w"
+              sizes="(max-width: 640px) 100vw, 400px"
             />
           </div>
         </div>

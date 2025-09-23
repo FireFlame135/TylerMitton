@@ -39,23 +39,6 @@ import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 import Critters from "critters";
 
-// Remove the invalid module augmentation and instead provide a module declaration for "critters"
-declare module "critters" {
-  interface CrittersOptions {
-    preload?: "swap" | "js" | "media" | false;
-    compress?: boolean;
-    pruneSource?: boolean;
-    [key: string]: any;
-  }
-
-  class Critters {
-    constructor(options?: CrittersOptions);
-    process(html: string): Promise<string>;
-  }
-
-  export = Critters;
-}
-
 export default defineConfig(({ mode }) => ({
   base: "/TylerMitton/",
   server: {
@@ -71,6 +54,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: "script",
       workbox: {
         runtimeCaching: [
           {
