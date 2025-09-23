@@ -54,7 +54,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: "script",
+      injectRegister: "inline", 
       workbox: {
         runtimeCaching: [
           {
