@@ -1,3 +1,5 @@
+# Note: This workflow is currently disabled. To enable it, rename the file to deploy.yml
+
 name: Deploy to GitHub Pages
 
 on:

@@ -1,0 +1,66 @@
+name: Build (Cloudflare) + Publish Redirect to gh-pages
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish-redirect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (this is for Cloudflare Pages)
+        run: npm run build
+
+      - name: Create redirect HTML
+        run: |
+          mkdir -p gh-redirect
+          cat > gh-redirect/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="refresh" content="0; url=https://tylermitton.com/" />
+            <meta name="robots" content="noindex" />
+            <link rel="canonical" href="https://tylermitton.com/" />
+            <title>Redirecting…</title>
+            <script>
+              (function () {
+                try {
+                  const target =
+                    'https://tylermitton.com' +
+                    location.pathname +
+                    location.search +
+                    location.hash;
+                  location.replace(target);
+                } catch(e) {}
+              })();
+            </script>
+          </head>
+          <body>
+            <p>Redirecting to <a href="https://tylermitton.com/">tylermitton.com</a>…</p>
+          </body>
+          </html>
+          HTML
+
+      - name: Deploy redirect to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-redirect
