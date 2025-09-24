@@ -144,26 +144,26 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    VitePWA({
-      registerType: "autoUpdate",
-      injectRegister: "inline", 
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) =>
-              url.origin === "https://fireflame135.github.io",
-            handler: "CacheFirst",
-            options: {
-              cacheName: "my-site-assets",
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 90,
-              },
-            },
-          },
-        ],
-      },
-    }),
+    // VitePWA({
+    //   registerType: "autoUpdate",
+    //   injectRegister: "inline", 
+    //   workbox: {
+    //     runtimeCaching: [
+    //       {
+    //         urlPattern: ({ url }) =>
+    //           url.origin === "https://fireflame135.github.io",
+    //         handler: "CacheFirst",
+    //         options: {
+    //           cacheName: "my-site-assets",
+    //           expiration: {
+    //             maxEntries: 100,
+    //             maxAgeSeconds: 60 * 60 * 24 * 90,
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   },
+    // }),
     {
       name: "vite-plugin-critters",
       enforce: "post",
