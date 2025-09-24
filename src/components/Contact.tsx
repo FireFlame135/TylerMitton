@@ -133,7 +133,7 @@ const Contact: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-6 dark:text-gray-100"> 
             Let's Connect!
           </h2>
-          <p className="text-lg text-gray-600 mb-8 leading-relaxed dark:text-gray-400">
+          <p className="text-lg text-gray-700 mb-8 leading-relaxed dark:text-gray-300">
             Questions? Feedback? Want to work together?
             <br />
             I'm always interested in new opportunities and collaborations.
@@ -153,9 +153,9 @@ const Contact: React.FC = () => {
               > 
                 <Mail
                   size={30}
-                  className="text-gray-500 group-hover:text-gray-950 dark:group-hover:text-gray-50"
+                  className="text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-gray-50"
                 />
-                <span className="text-gray-500 group-hover:text-gray-950 dark:group-hover:text-gray-50">
+                <span className="text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-gray-50">
                   tylermitton@gmail.com
                 </span>
               </a>
