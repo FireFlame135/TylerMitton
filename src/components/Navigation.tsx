@@ -84,14 +84,22 @@ const Navigation = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button className="md:hidden p-2" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen ? 'true' : 'false'}
+            aria-controls="mobile-menu"
+          >
             {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100 dark:border-gray-700">
+          <div 
+            id="mobile-menu"
+            className="md:hidden py-4 border-t border-gray-100 dark:border-gray-700"
+          >
             {navItems.map((item) => (
               <a
                 key={item.name}
