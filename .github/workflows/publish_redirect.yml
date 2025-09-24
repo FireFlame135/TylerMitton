@@ -1,37 +1,40 @@
-name: Build (Cloudflare) + Publish Redirect to gh-pages
+name: Deploy
 
 on:
   push:
-    branches: [ main ]
-
-permissions:
-  contents: write
+    branches:
+      - main
 
 jobs:
-  build-and-publish-redirect:
+  # --- Cloudflare Build/Deploy ---
+  build-cloudflare:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 18
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build (this is for Cloudflare Pages)
+      - name: Build project
         run: npm run build
+  
+  # --- GitHub Pages Redirect ---
+  redirect-gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Create redirect HTML
+      - name: Create redirect index.html
         run: |
-          mkdir -p gh-redirect
-          cat > gh-redirect/index.html <<'HTML'
+          mkdir out
+          cat > out/index.html <<'HTML'
           <!doctype html>
           <html lang="en">
           <head>
@@ -41,16 +44,7 @@ jobs:
             <link rel="canonical" href="https://tylermitton.com/" />
             <title>Redirecting…</title>
             <script>
-              (function () {
-                try {
-                  const target =
-                    'https://tylermitton.com' +
-                    location.pathname +
-                    location.search +
-                    location.hash;
-                  location.replace(target);
-                } catch(e) {}
-              })();
+              window.location.replace("https://tylermitton.com/");
             </script>
           </head>
           <body>
@@ -63,4 +57,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./gh-redirect
+          publish_dir: ./out
+          publish_branch: gh-pages
