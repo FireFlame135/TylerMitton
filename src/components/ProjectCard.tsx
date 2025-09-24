@@ -31,7 +31,8 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
       </div>
       <div className="space-y-2">
-        <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide font-normal">
+        <p className="text-sm text-gray-600 dark:text-gray-300 uppercase tracking-wide font-normal">
+          {/* was text-gray-500 and dark:text-gray-400 */}
           {category}
         </p>
         <h3 className="text-xl font-normal text-gray-900 group-hover:text-gray-600 dark:text-gray-200 transition-colors duration-200">

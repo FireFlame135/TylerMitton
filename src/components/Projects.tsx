@@ -50,7 +50,7 @@ const Projects = () => {
         <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100">
           Selected Projects
         </h2>
-        <p className="text-gray-600 max-w-2xl dark:text-gray-400">
+        <p className="text-gray-700 max-w-2xl dark:text-gray-300">
           A collection of projects I've worked on to showcase my skills and creativity. Always more to come soon!
         </p>
       </div>

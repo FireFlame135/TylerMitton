@@ -53,14 +53,14 @@ const Testimonials = () => {
                   <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-1.1.9-2 2-2V8zm16 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-1.1.9-2 2-2V8z" />
                 </svg>
               </div>
-              <blockquote className="text-gray-700 dark:text-gray-400 mb-4 leading-relaxed">
+              <blockquote className="text-gray-800 dark:text-gray-300 mb-4 leading-relaxed">
                 "{testimonial.quote}"
               </blockquote>
               <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
                 <div className="font-normal text-gray-900 dark:text-gray-200">
                   {testimonial.author}
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   {testimonial.title}
                 </div>
               </div>

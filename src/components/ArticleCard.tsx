@@ -13,10 +13,10 @@ const ArticleCard = ({ post }: ArticleCardProps) => {
   const content = (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
-        <span className="w-fit shrink-0 text-xs font-normal text-gray-500 group-hover:bg-[#DCDDDF] px-2 py-1 rounded transition-all duration-300 bg-[#ECEDEF] dark:bg-gray-800 dark:text-gray-300 dark:group-hover:bg-[#2B3544]">
+        <span className="w-fit shrink-0 text-xs font-normal text-gray-600 group-hover:bg-[#DCDDDF] px-2 py-1 rounded transition-all duration-300 bg-[#ECEDEF] dark:bg-gray-800 dark:text-gray-200 dark:group-hover:bg-[#2B3544]">
           {post.category}
         </span>
-        <div className="flex items-center text-xs text-gray-500 dark:text-gray-300 space-x-2">
+        <div className="flex items-center text-xs text-gray-600 dark:text-gray-200 space-x-2">
           <Calendar size={12} />
           <span>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
           <span>•</span>

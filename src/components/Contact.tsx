@@ -153,9 +153,9 @@ const Contact: React.FC = () => {
               > 
                 <Mail
                   size={30}
-                  className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100"
+                  className="text-gray-500 group-hover:text-gray-950 dark:group-hover:text-gray-50"
                 />
-                <span className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100">
+                <span className="text-gray-500 group-hover:text-gray-950 dark:group-hover:text-gray-50">
                   tylermitton@gmail.com
                 </span>
               </a>
