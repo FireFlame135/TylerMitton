@@ -132,7 +132,7 @@ const crittersWhitelist = [
 
 
 export default defineConfig(({ mode }) => ({
-  base: "/TylerMitton/",
+  base: "/",
   server: {
     host: "::",
     port: 8080,
