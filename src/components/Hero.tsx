@@ -1,4 +1,4 @@
-
+// src/components/Hero.tsx
 const Hero = () => {
   return (
     <section id="Hero" className="pt-24 pb-16 px-6 sm:px-8 mx-auto">

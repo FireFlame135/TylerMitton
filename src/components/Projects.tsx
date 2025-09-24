@@ -1,3 +1,4 @@
+// src/components/Projects.tsx
 import ProjectCard from './ProjectCard';
 
 const Projects = () => {
