@@ -133,7 +133,7 @@ const crittersWhitelist = [
 
 export default defineConfig(({ mode }) => ({
   // base: mode === 'github' ? '/TylerMitton/' : './',  // use '/' for Cloudflare but TylerMitton for GitHub Pages
-  base: '/'
+  base: '/',
   server: {
     host: "::",
     port: 8080,
