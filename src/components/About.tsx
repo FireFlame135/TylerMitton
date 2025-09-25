@@ -1,8 +1,7 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
-const headshotURL = "/TylerMitton/assets/Professional_Headshot-97kb.avif";
-const headshotURL_large = "/TylerMitton/assets/Professional_Headshot-191kb.avif";
+const headshotURL = `${import.meta.env.BASE_URL}assets/Professional_Headshot-97kb.avif`;
 
 const About = () => {
   return (
@@ -47,15 +46,11 @@ const About = () => {
               alt="Personal Portrait of Tyler Mitton"
               effect="blur"
               className="w-full h-full object-cover bg-[#E2E4E6] dark:bg-zinc-800"
-              // Important performance tweaks:
-              width={400} 
-              height={533}
-              fetchpriority="high" 
-              loading="eager" 
+              // width={400}
+              // height={533}
+              fetchpriority="high"
+              loading="eager"
               decoding="async"
-              srcSet="/TylerMitton/assets/Professional_Headshot-97kb.avif 400w,
-                      /TylerMitton/assets/Professional_Headshot-191kb.avif 800w"
-              sizes="(max-width: 640px) 100vw, 400px"
             />
           </div>
         </div>
