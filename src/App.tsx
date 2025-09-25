@@ -22,10 +22,10 @@ const RootLayout = () => (
   </Suspense>
 );
 
-const base =
-  import.meta.env.MODE === "github" 
-    ? "/TylerMitton/"
-    : "/";
+// const base =
+//   import.meta.env.MODE === "github" 
+//     ? "/TylerMitton/"
+//     : "/";
 
 // Define routes using the data router structure
 const router = createBrowserRouter([
@@ -42,7 +42,8 @@ const router = createBrowserRouter([
     ],
   },
 ], {
-  basename: base
+  // basename: base
+  basename: "/",
 });
 
 const App = () => (
