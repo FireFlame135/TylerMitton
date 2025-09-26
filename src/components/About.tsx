@@ -29,7 +29,7 @@ const About = () => {
               I believe in the power of thoughtful system and data pipeline
               design to solve problems and create meaningful connections between
               products and their communities. My approach combines strategic
-              function with aesthetic design.
+              function with aesthetic design to create engaging and intuitive user experiences.
             </p>
             <p>
               When I'm not designing, you can find me exploring new cities,

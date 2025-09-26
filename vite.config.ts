@@ -135,7 +135,6 @@ export default defineConfig(({ mode }) => ({
   base: mode === 'github' ? '/TylerMitton/' : '/',  
   // base: './',
   // base: '/TylerMitton/',
-  // testing testing 123
   server: {
     host: "::",
     port: 8080,
