@@ -78,8 +78,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           force_orphan: true
-          cname: fireflame135.github.io
-          publish_branch: gh-pages
+          publish_branch: gh-pages   # 🔑 no cname here!
 
       # --- Build for custom domain (root site) ---
       - name: Clean dist
@@ -94,5 +93,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           force_orphan: true
-          cname: tylermitton.com
           publish_branch: gh-pages-root
+          cname: tylermitton.com     # 🔑 cname only here
