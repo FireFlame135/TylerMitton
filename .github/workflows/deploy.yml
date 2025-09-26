@@ -40,6 +40,62 @@
 #           force_orphan: true
 #           cname: tylermitton.com
 
+# name: Deploy to GitHub Pages (two sites)
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# permissions:
+#   contents: write
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '22'
+
+#       - name: Install dependencies
+#         run: npm ci
+
+#       # --- Build for GitHub Pages (project site) ---
+#       - name: Build for project site
+#         run: npm run build -- --mode github
+#       - name: Copy 404 fallback
+#         run: cp dist/index.html dist/404.html
+#       - name: Deploy to gh-pages branch
+#         uses: peaceiris/actions-gh-pages@v4
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           publish_dir: ./dist
+#           force_orphan: true
+#           publish_branch: gh-pages  
+
+#       # --- Build for custom domain (root site) ---
+#       - name: Clean dist
+#         run: rm -rf dist
+#       - name: Build for custom domain
+#         run: npm run build
+#       - name: Copy 404 fallback
+#         run: cp dist/index.html dist/404.html
+#       - name: Deploy to gh-pages-root branch
+#         uses: peaceiris/actions-gh-pages@v4
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           publish_dir: ./dist
+#           force_orphan: true
+#           publish_branch: gh-pages-root
+#           cname: tylermitton.com     
+
 name: Deploy to GitHub Pages (two sites)
 
 on:
@@ -68,9 +124,9 @@ jobs:
         run: npm ci
 
       # --- Build for GitHub Pages (project site) ---
-      - name: Build for project site
+      - name: Build for project site (gh-pages branch)
         run: npm run build -- --mode github
-      - name: Copy 404 fallback
+      - name: Copy 404 fallback for project site
         run: cp dist/index.html dist/404.html
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
@@ -78,15 +134,19 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           force_orphan: true
-          publish_branch: gh-pages   # 🔑 no cname here!
+          publish_branch: gh-pages  
+          # NO CNAME HERE for the project page, as it should be fireflame135.github.io/TylerMitton/
 
       # --- Build for custom domain (root site) ---
-      - name: Clean dist
+      - name: Clean dist for custom domain build
         run: rm -rf dist
-      - name: Build for custom domain
+      - name: Build for custom domain (gh-pages-root branch)
         run: npm run build
-      - name: Copy 404 fallback
+      - name: Copy 404 fallback for custom domain
         run: cp dist/index.html dist/404.html
+      # Add CNAME file for custom domain
+      - name: Create CNAME file for custom domain
+        run: echo "tylermitton.com" > dist/CNAME
       - name: Deploy to gh-pages-root branch
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -94,4 +154,4 @@ jobs:
           publish_dir: ./dist
           force_orphan: true
           publish_branch: gh-pages-root
-          cname: tylermitton.com     # 🔑 cname only here
+          cname: tylermitton.com # This parameter usually handles the CNAME file for you, but adding the step explicitly is safer.
