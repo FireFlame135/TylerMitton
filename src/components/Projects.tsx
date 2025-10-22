@@ -7,7 +7,7 @@ const Projects = () => {
       title: "Maze Game",
       category: "Game Design",
       image: "Maze_Game_Screenshot.avif",
-      description: "A simple maze game where you can explore aimlessly. Click to play! Built with TypeScript and three.js. Uses a depth first search algorithm to ensure a perfect maze.",
+      description: "A simple maze game where you can explore aimlessly. Built with the three.js framework. Uses a depth first search algorithm to ensure a perfect maze. It's compatible with mobile devices and has multiple control options for those on PC. Click to play!",
       link: "/MazeGame/"
     },
     {
@@ -17,13 +17,15 @@ const Projects = () => {
       description: "This personal portfolio website showcasing my design and development work. Built with React, TypeScript, and Tailwind CSS. Developed with Vite. Click to see my article \"How I Taught Myself Modern Front-End Development\" for more information.",
       link: "/Articles/how-i-taught-myself-modern-front-end-development"
     },
+    {
+      title: "Multimodal AI Tutor",
+      category: "AI Hackathon",
+      image: "AI_Tutor_Screenshot.avif",
+      description: "A multimodal AI tutor that uses a combination of inputs like drawings on a whiteboard, text, and voice to help students learn. Click to see the project's Devpost submission, award at the Weber State AI Hackathon, and a demo video!",
+      link: "https://devpost.com/software/ai-tutor-weber-state-ai-hackathon?utm_campaign=winner_email&utm_content=submission_won&utm_medium=tweet&utm_source=twitter"
+    },
+
     // Example placeholder projects:
-    // {
-    //   title: "Editorial Layout Design",
-    //   category: "Print Design",
-    //   image: "PlaceholderImage2.jpg",
-    //   description: "Magazine layout design for a quarterly architecture publication, balancing typography and visual hierarchy."
-    // },
     // {
     //   title: "Website Redesign",
     //   category: "Web Design",
