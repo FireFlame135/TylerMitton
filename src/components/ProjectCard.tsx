@@ -16,7 +16,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
   const imageSRC = `${import.meta.env.BASE_URL}assets/${image}`;
 
   const CardContent = (
-    <div className="flex flex-col h-full bg-transparent">
+    <div className="flex flex-col h-full p-6">
       <div className="relative overflow-hidden bg-gray-100 mb-4 aspect-[4/3] dark:bg-gray-800">
         <LazyLoadImage
           src={imageSRC}
@@ -30,15 +30,15 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
       </div>
-      <div className="space-y-2">
-        <p className="text-sm text-gray-600 dark:text-gray-300 uppercase tracking-wide font-normal">
+      <div className="space-y-2 flex-1 flex flex-col">
+        <p className="text-xs text-gray-600 dark:text-gray-300 uppercase tracking-wide font-normal">
           {/* was text-gray-500 and dark:text-gray-400 */}
           {category}
         </p>
-        <h3 className="text-xl font-normal text-gray-900 group-hover:text-gray-600 dark:text-gray-200 transition-colors duration-200">
+        <h3 className="text-xl font-normal text-gray-900 dark:text-gray-300 transition-colors duration-200">
           {title}
         </h3>
-        <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">
+        <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400 flex-1">
           {description}
         </p>
       </div>
@@ -49,7 +49,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
     link.startsWith('#') ? (
       <button
         type="button"
-        className="group cursor-pointer block w-full text-left bg-transparent border-none p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100 rounded"
+        className="group cursor-pointer block w-full text-left bg-transparent hover:bg-[#C4C5C8] dark:hover:bg-[#18202F] rounded-lg transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100"
         onClick={e => {
           e.preventDefault();
           const id = link.slice(1);
@@ -62,12 +62,12 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         {CardContent}
       </button>
     ) : (
-      <Link to={link} className="group cursor-pointer block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100 rounded">
+      <Link to={link} className="group cursor-pointer block bg-transparent hover:bg-[#C4C5C8] dark:hover:bg-[#18202F] rounded-lg transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100">
         {CardContent}
       </Link>
     )
   ) : (
-    <div className="group cursor-pointer block">
+    <div className="group cursor-pointer block bg-transparent hover:bg-[#C4C5C8] dark:hover:bg-[#18202F] rounded-lg transition-all duration-300">
       {CardContent}
     </div>
   );
