@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write  # 👈 REQUIRED for pushing to gh-pages
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -34,6 +37,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
 
 
 # name: Deploy to GitHub Pages (two sites)
