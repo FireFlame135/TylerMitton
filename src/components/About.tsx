@@ -32,7 +32,7 @@ const About = () => {
               function with aesthetic design to create an engaging and intuitive user experience.
             </p>
             <p>
-              When I'm not designing, you can find me exploring new cities,
+              When I'm not designing, you can find me exploring new cities, researching tech products,
               playing sports outdoors or hiking in the summer, snowboarding in
               the winter, or playing rocket league.
             </p>
@@ -46,8 +46,6 @@ const About = () => {
               alt="Personal Portrait of Tyler Mitton"
               effect="blur"
               className="w-full h-full object-cover bg-[#E2E4E6] dark:bg-zinc-800"
-              // width={400}
-              // height={533}
               fetchpriority="high"
               loading="eager"
               decoding="async"

@@ -27,7 +27,7 @@ I chose to build my website with **React.js** for its prevalent component-based 
 
 One of the most valuable parts of this initial phase was setting up a **CI/CD (Continuous Integration/Continuous Deployment) pipeline using GitHub Actions**. I wrote a script that automates the entire deployment process. Now, every time I push a commit to the `main` branch of my repository, GitHub Actions automatically triggers Vite to build the optimized, production-ready version of the site and deploys it from another branch. Creating this automation process was a huge learning experience and allows me to focus purely on development without worrying about the manual steps of getting it online.
 
-With the workflow optimized, I was finally able to add the features I wanted:
+With the workflow optimized, I was finally able to add some of the features I wanted:
 
 - An integrated contact form so users could reach me quickly, without leaving my site
 - A light/dark mode toggle, which I always love to see on the websites I visit
