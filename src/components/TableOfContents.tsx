@@ -13,21 +13,28 @@ const TableOfContents = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Extract all h2 and h3 headings from the article
-    const article = document.querySelector('article');
-    if (!article) return;
+    const extractHeadings = () => {
+      // Extract all h2 and h3 headings from the article
+      const article = document.querySelector('article');
+      if (!article) return;
 
-    const headingElements = article.querySelectorAll('h2, h3');
-    const headingData: Heading[] = Array.from(headingElements).map((heading) => ({
-      id: heading.id || '',
-      text: heading.textContent || '',
-      level: parseInt(heading.tagName[1]),
-    }));
+      const headingElements = article.querySelectorAll('h2, h3');
+      const headingData: Heading[] = Array.from(headingElements).map((heading) => ({
+        id: heading.id || '',
+        text: heading.textContent || '',
+        level: parseInt(heading.tagName[1]),
+      }));
 
-    setHeadings(headingData);
+      setHeadings(headingData);
+      return headingElements;
+    };
+
+    // Initial extraction
+    const headingElements = extractHeadings();
+    if (!headingElements) return;
 
     // Intersection Observer to track active heading
-    const observer = new IntersectionObserver(
+    const intersectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -38,9 +45,36 @@ const TableOfContents = () => {
       { rootMargin: '-100px 0px -66% 0px' }
     );
 
-    headingElements.forEach((heading) => observer.observe(heading));
+    headingElements.forEach((heading) => intersectionObserver.observe(heading));
 
-    return () => observer.disconnect();
+    // Mutation Observer to watch for changes in article content
+    const article = document.querySelector('article');
+    if (article) {
+      const mutationObserver = new MutationObserver(() => {
+        // Re-extract headings when article content changes
+        const newHeadingElements = extractHeadings();
+        if (newHeadingElements) {
+          // Disconnect old intersection observer
+          intersectionObserver.disconnect();
+          
+          // Re-observe new headings
+          newHeadingElements.forEach((heading) => intersectionObserver.observe(heading));
+        }
+      });
+
+      mutationObserver.observe(article, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+
+      return () => {
+        intersectionObserver.disconnect();
+        mutationObserver.disconnect();
+      };
+    }
+
+    return () => intersectionObserver.disconnect();
   }, []);
 
   if (headings.length < 3) return null; // Only show if 3+ headings
