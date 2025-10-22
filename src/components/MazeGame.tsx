@@ -7,6 +7,7 @@ import {
   Clock // <-- Import the Clock
 } from 'three';
 import { Link } from 'react-router-dom';
+import SEO from './SEO';
 
 // --- Type Definitions ---
 type MazeCell = {
@@ -513,6 +514,11 @@ const MazeGame: React.FC = () => {
 
   return (
     <>
+      <SEO 
+        title="Maze Game"
+        description="A simple maze game built with three.js. Navigate through a procedurally generated maze with keyboard, mouse, or touch controls."
+        url="https://tylermitton.com/MazeGame"
+      />
       <style>{`
         /* CSS styles remain unchanged */
         body { margin:0; overflow:hidden; font-family:Arial,sans-serif; }
@@ -527,22 +533,24 @@ const MazeGame: React.FC = () => {
         #joystick-thumb { width: 60px; height: 60px; background: rgba(220, 220, 220, 0.7); border-radius: 50%; transition: transform 0.05s; }
         .joystick-hidden { display: none !important; }
       `}</style>
-      <div id="game-container" ref={gameContainerRef}>
-        <Link id="back-button" className="hud-element" to="/"><span className="icon">←</span> Back to Website</Link>
-        {!isMobile && (
-          <>
-            <div id="hud" className="hud-element">
-              <div>Mode: {controlMode}</div>
-            </div>
-            <button id="toggle-mode" className="hud-element">
-              Toggle Control Mode
-            </button>
-          </>
-        )}
-        <div id="joystick-base" ref={joystickBaseRef} className="joystick-hidden">
-            <div id="joystick-thumb" ref={joystickThumbRef}></div>
+      <main>
+        <div id="game-container" ref={gameContainerRef}>
+          <Link id="back-button" className="hud-element" to="/"><span className="icon">←</span> Back to Website</Link>
+          {!isMobile && (
+            <>
+              <div id="hud" className="hud-element">
+                <div>Mode: {controlMode}</div>
+              </div>
+              <button id="toggle-mode" className="hud-element">
+                Toggle Control Mode
+              </button>
+            </>
+          )}
+          <div id="joystick-base" ref={joystickBaseRef} className="joystick-hidden">
+              <div id="joystick-thumb" ref={joystickThumbRef}></div>
+          </div>
         </div>
-      </div>
+      </main>
     </>
   );
 };
