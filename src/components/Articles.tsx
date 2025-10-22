@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
 import { getPosts, Post } from '../lib/posts';
 import ArticleCard from './ArticleCard';
-// Removed the Button import as it's no longer used here
 
 // Hardcode the slugs of the posts to feature on the homepage
 const FEATURED_SLUGS: string[] = [
@@ -60,7 +59,6 @@ const Articles = () => {
         )}
 
         <div className="text-center mt-12">
-          {/* Reverted this link to use the original Tailwind classes for consistent styling */}
           <Link
             to="/Articles"
             className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-500 transition-all duration-300 transform hover:scale-105"
