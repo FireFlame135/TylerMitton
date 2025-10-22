@@ -1,6 +1,6 @@
 # Tyler Mitton’s Portfolio Website
 
-[![Deployed on GitHub Pages](https://img.shields.io/badge/deployed-gh--pages-blue)](https://fireflame135.github.io/TylerMitton/)
+[![Deployed on GitHub Pages](https://img.shields.io/badge/deployed-gh--pages-blue)](https://tylermitton.com)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-v22.16.0-blue)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-v11.4.1-red)](https://www.npmjs.com/)
@@ -9,7 +9,7 @@
 
 View the live website at this link: 
 
-[https://fireflame135.github.io/TylerMitton/](https://fireflame135.github.io/TylerMitton/)
+[https://tylermitton.com](https://tylermitton.com)
 
 ---
 

@@ -36,15 +36,15 @@ With the workflow optimized, I was finally able to add the features I wanted:
 ---
 
 Want to see it for yourself?  
-- [Visit the home page of my portfolio website](https://fireflame135.github.io/TylerMitton/)
+- [Visit the home page of my portfolio website](https://tylermitton.com)
 
 ---
 
 ## Putting My Skills to the Test with a Maze Game
 
-![Maze Game Screenshot](/TylerMitton/assets/Maze_Game_Screenshot.avif)
+![Maze Game Screenshot](/assets/Maze_Game_Screenshot.avif)
 
-With the portfolio’s foundation in place, I wanted to add something that would allow me to learn more, showcase some new skills, and be fun. I decided to build a simple, explorable 3D maze game using **Three.js**. My first prototype was functional, but it had serious issues. It lagged horribly, and you could walk straight through walls. This project quickly became a powerful lesson in the Design Thinking process and the realities of web development. If you haven’t read my [article on the design process,](https://fireflame135.github.io/TylerMitton/Articles/the-process-of-design-thinking) you should know it consists of five steps:
+With the portfolio’s foundation in place, I wanted to add something that would allow me to learn more, showcase some new skills, and be fun. I decided to build a simple, explorable 3D maze game using **Three.js**. My first prototype was functional, but it had serious issues. It lagged horribly, and you could walk straight through walls. This project quickly became a powerful lesson in the Design Thinking process and the realities of web development. If you haven't read my [article on the design process,](https://tylermitton.com/Articles/the-process-of-design-thinking) you should know it consists of five steps:
 
 1. **Empathize with the user**  
 
@@ -94,4 +94,4 @@ This experience has solidified my passion for building things and, more importan
 ---
 
 Want to see the maze game for yourself?  
-- [Explore the maze game here](https://fireflame135.github.io/TylerMitton/MazeGame/)
+- [Explore the maze game here](https://tylermitton.com/MazeGame/)
