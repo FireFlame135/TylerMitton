@@ -1,7 +1,6 @@
 // src/components/ProjectCard.tsx
 import { Link } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
 
 interface ProjectCardProps {
   title: string;
@@ -20,7 +19,6 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
       <div className="relative overflow-hidden bg-gray-100 mb-4 aspect-[4/3] dark:bg-gray-800">
         <LazyLoadImage
           src={imageSRC}
-          effect="blur"
           width="100%"
           height="100%"
           alt={title}
