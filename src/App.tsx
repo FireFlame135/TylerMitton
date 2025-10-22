@@ -37,9 +37,7 @@ const router = createBrowserRouter([
       { path: "/LinkedIn", element: <LinkedInRedirect /> },
     ],
   },
-], {
-  basename: base
-});
+]);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
