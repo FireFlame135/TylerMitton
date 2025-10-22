@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
 import { getPosts, Post } from '../lib/posts';
 import ArticleCard from './ArticleCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Hardcode the slugs of the posts to feature on the homepage
 const FEATURED_SLUGS: string[] = [
@@ -49,7 +50,18 @@ const Articles = () => {
         </div>
         
         {loading ? (
-            <div className="text-center dark:text-gray-300">Loading articles...</div>
+            <div className="grid md:grid-cols-2 max-w-7xl mx-auto gap-8">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-[#D4D5D8] dark:bg-gray-900 rounded-lg p-6">
+                  <Skeleton className="h-6 w-24 mb-3" />
+                  <Skeleton className="h-8 w-full mb-3" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-3/4 mb-4" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              ))}
+            </div>
         ) : (
             <div className="grid md:grid-cols-2 max-w-7xl mx-auto gap-8">
                 {postsToShow.map((post) => (

@@ -47,9 +47,17 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#D4D5D8]/50 backdrop-blur-md border-b border-gray-300 dark:bg-gray-900/60 dark:border-gray-700 transition-all duration-300 shadow-sm">
-      <div className="mx-auto px-6 sm:px-8">
-        <div className="flex justify-between items-center h-16">
+    <>
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gray-900 focus:text-white focus:rounded-md dark:focus:bg-gray-100 dark:focus:text-gray-900"
+      >
+        Skip to main content
+      </a>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#D4D5D8]/50 backdrop-blur border-b border-gray-300 dark:bg-gray-900/60 dark:border-gray-700 transition-all duration-300 shadow-sm">
+        <div className="mx-auto px-6 sm:px-8">
+          <div className="flex justify-between items-center h-16">
           <a href="/" onClick={handleLogoClick} className="cursor-pointer">
             <div className="text-3xl font-normal text-gray-900 dark:text-gray-100">
               Tyler Mitton
@@ -125,6 +133,7 @@ const Navigation = () => {
         )}
       </div>
     </nav>
+    </>
   );
 };
 

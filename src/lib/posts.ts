@@ -13,6 +13,16 @@ export interface Post {
   link?: string; // Add optional link property
 }
 
+// Define the frontmatter structure
+interface PostFrontMatter {
+  title: string;
+  date: string;
+  category: string;
+  readTime: string;
+  excerpt: string;
+  link?: string;
+}
+
 // Fetches and parses all posts
 export const getPosts = async (): Promise<Post[]> => {
   // Correct the glob path to be relative to the current file
@@ -22,7 +32,7 @@ export const getPosts = async (): Promise<Post[]> => {
     Object.entries(files).map(async ([path, resolver]) => {
       const rawContent = await resolver() as string;
       const parsed = matter(rawContent);
-      const data = parsed.attributes as Record<string, any>;
+      const data = parsed.attributes as PostFrontMatter;
       const content = parsed.body;
 
       const slug = path.split('/').pop()?.replace('.md', '') ?? '';
@@ -48,7 +58,7 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   try {
     const rawContent = await import(`../posts/${slug}.md?raw`);
     const parsed = matter(rawContent.default);
-    const data = parsed.attributes as Record<string, any>;
+    const data = parsed.attributes as PostFrontMatter;
     const content = parsed.body;
 
     return {

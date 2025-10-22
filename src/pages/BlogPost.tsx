@@ -15,6 +15,11 @@ import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import NotFound from './NotFound';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import SEO from '../components/SEO';
+import ReadingProgress from '../components/ReadingProgress';
+import ScrollToTop from '../components/ScrollToTop';
+import TableOfContents from '../components/TableOfContents';
 
 import { ExternalLink } from 'lucide-react';
 
@@ -59,33 +64,88 @@ const BlogPost = () => {
   }, [slug]);
 
   if (loading) {
-    return <div className="min-h-screen bg-[#E2E4E6] dark:bg-zinc-800" />;
+    return (
+      <div className="bg-[#E2E4E6] dark:bg-zinc-800">
+        <Navigation />
+        <main className="pt-24 pb-16 px-6 sm:px-8">
+          <div className="max-w-prose mx-auto">
+            <Skeleton className="h-12 w-3/4 mb-4" />
+            <Skeleton className="h-4 w-1/2 mb-8" />
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-4 w-5/6 mb-4" />
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-4 w-4/5" />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   if (!post) {
     return <NotFound />;
   }
 
+  // Generate JSON-LD structured data for the blog post
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "datePublished": post.date,
+    "author": {
+      "@type": "Person",
+      "name": "Tyler Mitton",
+      "url": "https://tylermitton.com"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Tyler Mitton"
+    },
+    "description": post.excerpt,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://tylermitton.com/Articles/${post.slug}`
+    }
+  };
+
   return (
-    <div className="bg-[#E2E4E6] dark:bg-zinc-800">
-      <Navigation />
-      <main className="pt-24 pb-16 px-6 sm:px-8">
-        <article 
-          className="prose prose-lg dark:prose-invert mx-auto"
-        >
-          <h1>{post.title}</h1>
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-            <span>Published on {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-            <span> • </span>
-            <span>{post.readTime}</span>
-          </div>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkSlug, remarkEmoji, remarkMath]}
-            rehypePlugins={[rehypeRaw, rehypeKatex]}
+    <>
+      <SEO
+        title={post.title}
+        description={post.excerpt}
+        url={`https://tylermitton.com/Articles/${post.slug}`}
+        type="article"
+        article={{
+          publishedTime: post.date,
+          author: "Tyler Mitton",
+          tags: [post.category]
+        }}
+        jsonLd={jsonLd}
+      />
+      <ReadingProgress />
+      <div className="bg-[#E2E4E6] dark:bg-zinc-800">
+        <Navigation />
+        <main id="main-content" className="pt-24 pb-16 px-6 sm:px-8">
+          <TableOfContents />
+          <article 
+            className="prose prose-lg dark:prose-invert mx-auto lg:ml-80 [&_h2]:scroll-mt-16 [&_h3]:scroll-mt-16 [&_h4]:scroll-mt-16 [&_h5]:scroll-mt-16 [&_h6]:scroll-mt-16"
           >
-            {post.content}
-          </ReactMarkdown>
-        </article>
+            <h1>{post.title}</h1>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+              <span>Published on {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span> • </span>
+              <span>{post.readTime}</span>
+            </div>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkSlug, remarkEmoji, remarkMath]}
+              rehypePlugins={[rehypeRaw, rehypeKatex]}
+            >
+              {post.content}
+            </ReactMarkdown>
+          </article>
 
         {/* Next/Previous Post Navigation */}
         <div className="max-w-prose mx-auto mt-16 border-t border-gray-300 dark:border-gray-700 pt-8 flex justify-between gap-4">
@@ -128,9 +188,11 @@ const BlogPost = () => {
                 </Link>
             </Button>
         </div>
+        <ScrollToTop />
       </main>
       <Footer />
     </div>
+    </>
   );
 };
 

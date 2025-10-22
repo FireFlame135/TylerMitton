@@ -42,7 +42,7 @@ const ArticleCard = ({ post }: ArticleCardProps) => {
         href={post.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="group block bg-[#D4D5D8] hover:bg-[#C4C5C8] rounded-lg shadow-sm border border-gray-300 dark:bg-gray-900 dark:hover:bg-[#18202F] dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300 text-left"
+        className="group block bg-[#D4D5D8] hover:bg-[#C4C5C8] rounded-lg shadow-sm border border-gray-300 dark:bg-gray-900 dark:hover:bg-[#18202F] dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100"
       >
         {content}
       </a>
@@ -52,7 +52,7 @@ const ArticleCard = ({ post }: ArticleCardProps) => {
   return (
     <Link
       to={`/Articles/${post.slug}`}
-      className="group block bg-[#D4D5D8] hover:bg-[#C4C5C8] rounded-lg shadow-sm border border-gray-300 dark:bg-gray-900 dark:hover:bg-[#18202F] dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300 text-left"
+      className="group block bg-[#D4D5D8] hover:bg-[#C4C5C8] rounded-lg shadow-sm border border-gray-300 dark:bg-gray-900 dark:hover:bg-[#18202F] dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100"
     >
       {content}
     </Link>

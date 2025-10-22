@@ -49,7 +49,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
     link.startsWith('#') ? (
       <button
         type="button"
-        className="group cursor-pointer block w-full text-left bg-transparent border-none p-0"
+        className="group cursor-pointer block w-full text-left bg-transparent border-none p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100 rounded"
         onClick={e => {
           e.preventDefault();
           const id = link.slice(1);
@@ -62,7 +62,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         {CardContent}
       </button>
     ) : (
-      <Link to={link} className="group cursor-pointer block">
+      <Link to={link} className="group cursor-pointer block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100 rounded">
         {CardContent}
       </Link>
     )

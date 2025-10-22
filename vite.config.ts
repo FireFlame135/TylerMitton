@@ -4,7 +4,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 // import { VitePWA } from "vite-plugin-pwa";
+// @ts-ignore - Critters types are not properly exported
 import Critters from "critters";
+import sitemap from "vite-plugin-sitemap";
 
 const crittersWhitelist = [
   // group hover & hover effects
@@ -144,6 +146,20 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    sitemap({
+      hostname: 'https://tylermitton.com',
+      dynamicRoutes: [
+        '/',
+        '/Articles',
+        '/Articles/how-i-taught-myself-modern-front-end-development',
+        '/Articles/the-process-of-design-thinking',
+        '/Articles/protac-linker-engineering',
+        '/Articles/MarkdownTutorial',
+        '/MazeGame',
+      ],
+      changefreq: 'weekly',
+      priority: 0.8,
+    }),
     // VitePWA({
     //   registerType: "autoUpdate",
     //   injectRegister: "inline", 
