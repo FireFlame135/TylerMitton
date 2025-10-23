@@ -1,5 +1,5 @@
 // src/components/Navigation.tsx
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ExternalLink } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
@@ -16,6 +16,23 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMenuOpen && navRef.current && !navRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,7 +72,7 @@ const Navigation = () => {
       >
         Skip to main content
       </a>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#D4D5D8]/50 backdrop-blur border-b border-gray-300 dark:bg-gray-900/60 dark:border-gray-700 transition-all duration-300 shadow-sm">
+      <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 bg-[#D4D5D8]/50 backdrop-blur border-b border-gray-300 dark:bg-gray-900/60 dark:border-gray-700 transition-all duration-300 shadow-sm">
         <div className="mx-auto px-6 sm:px-8">
           <div className="flex justify-between items-center h-16">
           <a href="/" onClick={handleLogoClick} className="cursor-pointer">
