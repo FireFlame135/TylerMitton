@@ -23,7 +23,7 @@ The step-by-step process goes like this:
 
 ---
 
-![Design Thinking Infographic](/TylerMitton/assets/Design_Process.gif)
+![Design Thinking Infographic](/assets/Design_Process.gif)
 
 ---
 
