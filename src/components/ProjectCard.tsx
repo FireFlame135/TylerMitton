@@ -14,6 +14,9 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
   // Construct the image path using the base URL and assets folder
   const imageSRC = `${import.meta.env.BASE_URL}assets/${image}`;
 
+  // Check if the link is external (starts with http:// or https://)
+  const isExternal = link && (link.startsWith('http://') || link.startsWith('https://'));
+
   const CardContent = (
     <div className="flex flex-col h-full p-6">
       <div className="relative overflow-hidden bg-gray-100 mb-4 aspect-[4/3] dark:bg-gray-800">
@@ -59,6 +62,15 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
       >
         {CardContent}
       </button>
+    ) : isExternal ? (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group cursor-pointer block bg-transparent hover:bg-[#C4C5C8] dark:hover:bg-[#18202F] rounded-lg transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100"
+      >
+        {CardContent}
+      </a>
     ) : (
       <Link to={link} className="group cursor-pointer block bg-transparent hover:bg-[#C4C5C8] dark:hover:bg-[#18202F] rounded-lg transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-gray-100">
         {CardContent}
