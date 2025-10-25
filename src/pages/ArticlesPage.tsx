@@ -34,7 +34,7 @@ const ArticlesPage = () => {
         description="Exploring my thoughts on design thinking, front-end development, and personal projects through written reflections and analysis."
         url="https://tylermitton.com/Articles"
       />
-      <div className="min-h-screen flex flex-col bg-[#E2E4E6] dark:bg-zinc-800">
+      <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-zinc-800">
         <Navigation />
         <main id="main-content" className="flex-1 py-24 px-6 sm:px-8">
           <div className="text-center mb-16">
@@ -48,7 +48,7 @@ const ArticlesPage = () => {
           {loading ? (
             <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-8 mx-auto">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-[#D4D5D8] dark:bg-gray-900 rounded-lg p-6">
+                <div key={i} className="bg-gray-200 dark:bg-gray-900 rounded-lg p-6">
                   <Skeleton className="h-6 w-24 mb-3" />
                   <Skeleton className="h-8 w-full mb-3" />
                   <Skeleton className="h-4 w-full mb-2" />

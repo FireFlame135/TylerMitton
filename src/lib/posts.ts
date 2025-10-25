@@ -56,6 +56,14 @@ export const getPosts = async (): Promise<Post[]> => {
 // For getPostBySlug:
 export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   try {
+    // First try to get all posts to see if the slug exists
+    const allPosts = await getPosts();
+    const existingPost = allPosts.find(post => post.slug === slug);
+    
+    if (!existingPost) {
+      return null;
+    }
+
     const rawContent = await import(`../posts/${slug}.md?raw`);
     const parsed = matter(rawContent.default);
     const data = parsed.attributes as PostFrontMatter;

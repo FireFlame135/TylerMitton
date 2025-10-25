@@ -9,6 +9,7 @@ import remarkEmoji from 'remark-emoji';
 import 'katex/dist/katex.min.css';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import TaskList from '../components/TaskList';
 
 import { getPosts, getPostBySlug, Post } from '../lib/posts';
 import Navigation from '../components/Navigation';
@@ -42,6 +43,7 @@ const BlogPost = () => {
           getPosts()
         ]);
 
+
         setPost(currentPost);
 
         if (currentPost) {
@@ -55,6 +57,10 @@ const BlogPost = () => {
         }
       } catch (error) {
         console.error("Failed to fetch post data:", error);
+        // Log more specific error information
+        if (error instanceof Error) {
+          console.error("Error details:", error.message);
+        }
       } finally {
         setLoading(false);
       }
@@ -65,7 +71,7 @@ const BlogPost = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#E2E4E6] dark:bg-zinc-800">
+      <div className="bg-gray-100 dark:bg-zinc-800">
         <Navigation />
         <main className="pt-24 pb-16 px-6 sm:px-8">
           <div className="max-w-prose mx-auto">
@@ -126,7 +132,7 @@ const BlogPost = () => {
         jsonLd={jsonLd}
       />
       <ReadingProgress />
-      <div className="bg-[#E2E4E6] dark:bg-zinc-800">
+      <div className="bg-gray-100 dark:bg-zinc-800">
         <Navigation />
         <main id="main-content" className="pt-24 pb-16 px-6 sm:px-8">
           <TableOfContents />
@@ -142,6 +148,27 @@ const BlogPost = () => {
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkSlug, remarkEmoji, remarkMath]}
               rehypePlugins={[rehypeRaw, rehypeKatex]}
+              components={{
+                ul: ({ children, ...props }) => {
+                  if (props.className?.includes('contains-task-list')) {
+                    return <TaskList {...props}>{children}</TaskList>;
+                  }
+                  return <ul {...props}>{children}</ul>;
+                },
+                input: ({ type, ...props }) => {
+                  if (type === 'checkbox') {
+                    return (
+                      <input
+                        {...props}
+                        type="checkbox"
+                        aria-label={props['aria-label'] || 'Task checkbox'}
+                        className={`${props.className || ''} focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+                      />
+                    );
+                  }
+                  return <input {...props} type={type} />;
+                }
+              }}
             >
               {post.content}
             </ReactMarkdown>

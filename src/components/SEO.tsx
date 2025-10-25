@@ -25,17 +25,20 @@ const SEO = ({
   jsonLd,
 }: SEOProps) => {
   const fullTitle = title === 'Tyler Mitton' ? title : `${title} | Tyler Mitton`;
+  
+  // Ensure canonical URL is always absolute and properly formatted
+  const canonicalUrl = url.startsWith('http') ? url : `https://tylermitton.com${url}`;
 
   return (
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      <link rel="canonical" href={canonicalUrl} />
 
       {/* Open Graph */}
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:url" content={url} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content={type} />
       <meta property="og:image" content={image} />
 
