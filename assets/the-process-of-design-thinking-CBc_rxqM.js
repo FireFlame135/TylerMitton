@@ -104,3 +104,4 @@ Looking back, this experience taught me one of the most valuable aspects of desi
 
 The real magic of design thinking isn’t in having brilliant initial ideas—it’s in building the courage to **change them.**
 `;export{e as default};
+//# sourceMappingURL=the-process-of-design-thinking-CBc_rxqM.js.map
