@@ -1,7 +1,14 @@
 // src/components/Projects.tsx
+/**
+ * Projects showcase section displaying featured projects.
+ * Author: Tyler Mitton
+ * Grid layout of project cards with descriptions and links.
+ */
+
 import ProjectCard from './ProjectCard';
 
 const Projects = () => {
+  // Define project data with title, description, and link
   const projects = [
     {
       title: "Maze Game",
@@ -24,30 +31,11 @@ const Projects = () => {
       description: "A multimodal AI tutor that uses a combination of inputs like drawings on a whiteboard, text, and voice to help students learn. Click to see the project's Devpost submission, award at the Weber State AI Hackathon, and a demo video!",
       link: "https://devpost.com/software/ai-tutor-weber-state-ai-hackathon?utm_campaign=winner_email&utm_content=submission_won&utm_medium=tweet&utm_source=twitter"
     },
-
-    // Example placeholder projects:
-    // {
-    //   title: "Website Redesign",
-    //   category: "Web Design",
-    //   image: "PlaceholderImage3.jpg",
-    //   description: "Complete website redesign for a creative agency, focusing on portfolio presentation and user engagement."
-    // },
-    // {
-    //   title: "Packaging Design",
-    //   category: "Product Design",
-    //   image: "PlaceholderImage4.jpg",
-    //   description: "Sustainable packaging design for organic skincare products, emphasizing minimal and eco-friendly approach."
-    // },
-    // {
-    //   title: "Motion Graphics",
-    //   category: "Animation",
-    //   image: "PlaceholderImage5.jpg",
-    //   description: "Animated brand storytelling video for a tech startup's product launch campaign."
-    // }
   ];
 
   return (
     <section id="projects" className="py-16 px-6 sm:px-8 mx-auto scroll-mt-16 bg-[#F0F1F4] dark:bg-gray-800">
+      {/* Section heading and description */}
       <div className="mb-12">
         <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100">
           Selected Projects
@@ -57,6 +45,7 @@ const Projects = () => {
         </p>
       </div>
 
+      {/* Projects grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 items-stretch">
         {projects.map((project, index) => (
           <ProjectCard key={index} {...project} />

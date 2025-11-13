@@ -1,4 +1,10 @@
 // src/components/Articles.tsx
+/**
+ * Featured articles section on the homepage.
+ * Author: Tyler Mitton
+ * Displays a curated selection of blog posts and links to the full articles page.
+ */
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
@@ -13,15 +19,17 @@ const FEATURED_SLUGS: string[] = [
 ];
 
 const Articles = () => {
+  // State for managing featured posts and loading status
   const [postsToShow, setPostsToShow] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch featured posts on component mount
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const allPosts = await getPosts();
         
-        // Filter and order posts based on the hardcoded slugs.
+        // Filter and order posts based on the hardcoded slugs
         const featuredPosts = FEATURED_SLUGS
           .map((slug) => allPosts.find((post) => post.slug === slug))
           .filter((post): post is Post => post !== undefined);
@@ -40,6 +48,7 @@ const Articles = () => {
   return (
     <section id="articles" className="py-16 px-6 sm:px-8 scroll-mt-16 bg-[#F0F1F4] dark:bg-gray-800">
       <div className="mx-auto">
+        {/* Section heading */}
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100">
             Writings, Thoughts, & Insights
@@ -49,6 +58,7 @@ const Articles = () => {
           </p>
         </div>
         
+        {/* Featured articles grid or loading skeleton */}
         {loading ? (
             <div className="grid md:grid-cols-2 max-w-7xl mx-auto gap-8">
               {[1, 2].map((i) => (
@@ -70,6 +80,7 @@ const Articles = () => {
             </div>
         )}
 
+        {/* Link to view all articles */}
         <div className="text-center mt-12">
           <Link
             to="/Articles"

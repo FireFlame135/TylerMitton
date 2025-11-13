@@ -1,7 +1,13 @@
 // src/lib/posts.ts
+/**
+ * Post management and fetching utilities.
+ * Author: Tyler Mitton
+ * Handles loading, parsing, and organizing markdown blog posts.
+ */
+
 import matter from 'front-matter';
 
-// Define the structure of a Post object with TypeScript
+// Define the structure of a Post object
 export interface Post {
   slug: string;
   title: string;
@@ -10,10 +16,10 @@ export interface Post {
   readTime: string;
   excerpt: string;
   content: string;
-  link?: string; // Add optional link property
+  link?: string;
 }
 
-// Define the frontmatter structure
+// Define the frontmatter structure in markdown files
 interface PostFrontMatter {
   title: string;
   date: string;
@@ -23,18 +29,21 @@ interface PostFrontMatter {
   link?: string;
 }
 
-// Fetches and parses all posts
+// Fetch and parse all markdown posts
 export const getPosts = async (): Promise<Post[]> => {
-  // Correct the glob path to be relative to the current file
+  // Use Vite's glob to dynamically import all markdown files
   const files = import.meta.glob('../posts/*.md', { query: '?raw', import: 'default' });
 
   const posts = await Promise.all(
     Object.entries(files).map(async ([path, resolver]) => {
+      // Load raw markdown content
       const rawContent = await resolver() as string;
+      // Parse frontmatter and body
       const parsed = matter(rawContent);
       const data = parsed.attributes as PostFrontMatter;
       const content = parsed.body;
 
+      // Extract slug from filename
       const slug = path.split('/').pop()?.replace('.md', '') ?? '';
 
       return {
@@ -44,19 +53,20 @@ export const getPosts = async (): Promise<Post[]> => {
         category: data.category,
         readTime: data.readTime,
         excerpt: data.excerpt,
-        link: data.link, // Extract link from frontmatter
+        link: data.link,
         content,
       };
     })
   );
 
+  // Sort posts by date (newest first)
   return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
-// For getPostBySlug:
+// Fetch a single post by slug
 export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   try {
-    // First try to get all posts to see if the slug exists
+    // Check if post exists in all posts
     const allPosts = await getPosts();
     const existingPost = allPosts.find(post => post.slug === slug);
     
@@ -64,6 +74,7 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
       return null;
     }
 
+    // Load and parse the specific post
     const rawContent = await import(`../posts/${slug}.md?raw`);
     const parsed = matter(rawContent.default);
     const data = parsed.attributes as PostFrontMatter;
@@ -76,7 +87,7 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
       category: data.category,
       readTime: data.readTime,
       excerpt: data.excerpt,
-      link: data.link, // Extract link from frontmatter
+      link: data.link,
       content,
     };
   } catch (error) {

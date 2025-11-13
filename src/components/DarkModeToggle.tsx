@@ -1,4 +1,10 @@
 // src/components/DarkModeToggle.tsx
+/**
+ * Dark mode toggle switch component.
+ * Author: Tyler Mitton
+ * Allows users to switch between light and dark theme with smooth animations.
+ */
+
 import React from 'react';
 import { Sun, Moon } from 'lucide-react';
 import useDarkMode from '../hooks/useDarkMode';
@@ -8,10 +14,11 @@ type DarkModeToggleProps = {
 };
 
 const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
+  // Get current theme state from custom hook
   const { theme, toggleTheme, isHydrated } = useDarkMode();
   const isDark = theme === 'dark';
 
-  // If not hydrated, return a placeholder to avoid flickering
+  // Show placeholder while hydrating to avoid flash of unstyled content
   if (!isHydrated) {
     return <div className="h-9 w-[72px]" />; 
   }
@@ -30,7 +37,7 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
       onClick={toggleTheme}
       className={`${baseClasses} ${className}`}
     >
-      {/* Sun icon on the left */}
+      {/* Sun icon visible in light mode */}
       <span
         className={`
           absolute left-1.5 top-1/2
@@ -42,7 +49,7 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
         <Sun size={24} />
       </span>
 
-      {/* Moon icon on the right */}
+      {/* Moon icon visible in dark mode */}
       <span
         className={`
           absolute right-1.5 top-1/2
@@ -54,7 +61,7 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
         <Moon size={24} />
       </span>
 
-      {/* Knob */}
+      {/* Animated toggle knob */}
       <span
         className={`
           absolute left-1.5 top-1/2

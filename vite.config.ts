@@ -1,4 +1,9 @@
-
+// vite.config.ts
+/**
+ * Vite configuration for the portfolio website build system.
+ * Author: Tyler Mitton
+ * Configures React, Tailwind CSS optimization, and sitemap generation.
+ */
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
@@ -8,8 +13,9 @@ import path from "path";
 import Critters from "critters";
 import sitemap from "vite-plugin-sitemap";
 
+// Tailwind classes to preserve during CSS purification
 const crittersWhitelist = [
-  // group hover & hover effects
+  // Group hover & hover effects
   "group-hover:scale-105",
   "group-hover:bg-black/10",
   "group-hover:text-gray-600",
@@ -25,7 +31,7 @@ const crittersWhitelist = [
   "duration-300",
   "duration-500",
 
-  // dark mode
+  // Dark mode
   "dark:bg-gray-800",
   "dark:bg-gray-900",
   "dark:bg-gray-900/60",
@@ -43,7 +49,7 @@ const crittersWhitelist = [
   "dark:border-gray-700",
   "dark:hover:shadow-2xl",
 
-  // spacing & layout
+  // Spacing & layout
   "px-6",
   "py-3",
   "py-6",
@@ -89,7 +95,7 @@ const crittersWhitelist = [
   "inset-0",
   "aspect-[4/3]",
 
-  // typography
+  // Typography
   "text-xs",
   "text-sm",
   "text-lg",
@@ -110,7 +116,7 @@ const crittersWhitelist = [
   "text-gray-900",
   "text-gray-950",
 
-  // borders & rounding
+  // Borders & rounding
   "rounded",
   "rounded-md",
   "rounded-lg",
@@ -121,7 +127,7 @@ const crittersWhitelist = [
   "shadow",
   "shadow-sm",
 
-  // opacity & transforms
+  // Opacity & transforms
   "opacity-0",
   "opacity-100",
   "-translate-y-1/2",
@@ -130,8 +136,6 @@ const crittersWhitelist = [
   "transform",
   "object-cover",
 ];
-
-
 
 export default defineConfig(({ mode }) => ({
   base: '/',
@@ -148,7 +152,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    // React SWC compiler
     react(),
+    // Generate sitemap for SEO
     sitemap({
       hostname: 'https://tylermitton.com',
       dynamicRoutes: [
@@ -163,26 +169,7 @@ export default defineConfig(({ mode }) => ({
       changefreq: 'weekly',
       priority: 0.8,
     }),
-    // VitePWA({
-    //   registerType: "autoUpdate",
-    //   injectRegister: "inline", 
-    //   workbox: {
-    //     runtimeCaching: [
-    //       {
-    //         urlPattern: ({ url }) =>
-    //           url.origin === "https://fireflame135.github.io",
-    //         handler: "CacheFirst",
-    //         options: {
-    //           cacheName: "my-site-assets",
-    //           expiration: {
-    //             maxEntries: 100,
-    //             maxAgeSeconds: 60 * 60 * 24 * 90,
-    //           },
-    //         },
-    //       },
-    //     ],
-    //   },
-    // }),
+    // Custom Critters plugin for critical CSS extraction
     {
       name: "vite-plugin-critters",
       enforce: "post",
@@ -194,6 +181,7 @@ export default defineConfig(({ mode }) => ({
           pruneSource: true,
           whitelist: crittersWhitelist
         });
+        // Process HTML files to inline critical CSS
         for (const [fileName, asset] of Object.entries(bundle)) {
           if (fileName.endsWith(".html") && "source" in asset) {
             asset.source = await critters.process(asset.source as string);

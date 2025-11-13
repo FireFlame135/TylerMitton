@@ -1,9 +1,16 @@
 // src/components/Navigation.tsx
+/**
+ * Navigation bar component with mobile responsiveness and accessibility features.
+ * Author: Tyler Mitton
+ * Handles routing, dark mode toggle, and responsive mobile menu.
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ExternalLink } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
 
+// Define navigation menu items
 const navItems = [
   { name: 'Projects', href: '#projects' },
   { name: 'About', href: '#about' },
@@ -13,11 +20,13 @@ const navItems = [
 ];
 
 const Navigation = () => {
+  // State management for mobile menu and routing
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef<HTMLDivElement>(null);
 
+  // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMenuOpen && navRef.current && !navRef.current.contains(event.target as Node)) {
@@ -34,6 +43,7 @@ const Navigation = () => {
     };
   }, [isMenuOpen]);
 
+  // Handle logo click to scroll to top or navigate home
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (location.pathname === '/') {
@@ -43,113 +53,121 @@ const Navigation = () => {
     }
   };
 
+  // Handle navigation link clicks with smooth scroll on homepage
   const handleAnchorClick = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     href: string
   ) => {
     e.preventDefault();
-    setIsMenuOpen(false); // Close mobile menu on click
+    setIsMenuOpen(false);
     const id = href.substring(1);
 
     if (location.pathname === '/') {
-      // If on the homepage, scroll smoothly
+      // Scroll to section if already on homepage
       const element = document.getElementById(id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else {
-      // If on another page, navigate to homepage with hash
+      // Navigate to homepage with hash anchor
       navigate('/' + href);
     }
   };
 
   return (
     <>
-      {/* Skip to main content link for accessibility */}
+      {/* Accessibility: Skip to main content link */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gray-900 focus:text-white focus:rounded-md dark:focus:bg-gray-100 dark:focus:text-gray-900"
       >
         Skip to main content
       </a>
+      
+      {/* Navigation bar */}
       <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 bg-[#D4D5D8]/50 backdrop-blur border-b border-gray-300 dark:bg-gray-900/60 dark:border-gray-700 transition-all duration-300 shadow-sm">
         <div className="mx-auto px-6 sm:px-8">
           <div className="flex justify-between items-center h-16">
-          <a href="/" onClick={handleLogoClick} className="cursor-pointer">
-            <div className="text-3xl font-normal text-gray-900 dark:text-gray-100">
-              Tyler Mitton
+            {/* Logo / Brand name */}
+            <a href="/" onClick={handleLogoClick} className="cursor-pointer">
+              <div className="text-3xl font-normal text-gray-900 dark:text-gray-100">
+                Tyler Mitton
+              </div>
+            </a>
+
+            {/* Desktop Navigation Menu */}
+            <div className="hidden md:flex items-center space-x-8">
+              {navItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={(e) => handleAnchorClick(e, item.href)}
+                  className="relative text-gray-600 hover:text-gray-900 transition-all duration-300 text-sm font-normal group dark:text-gray-300 dark:hover:text-gray-100"
+                >
+                  {item.name}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full dark:bg-gray-100"></span>
+                </a>
+              ))}
+
+              {/* Resume link with external icon */}
+              <a
+                href="https://docs.google.com/document/d/1Rvqc8I2e5q534Ne93OOxAZyFzpwbHHpu/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-900 transition-all duration-300 transform hover:scale-105 text-sm font-normal dark:bg-gray-700 dark:hover:bg-gray-500"
+              >
+                <span>Résumé</span>
+                <ExternalLink size={16} />
+              </a>
+
+              {/* Dark mode toggle */}
+              <DarkModeToggle />
             </div>
-          </a>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleAnchorClick(e, item.href)}
-                className="relative text-gray-600 hover:text-gray-900 transition-all duration-300 text-sm font-normal group dark:text-gray-300 dark:hover:text-gray-100"
-              >
-                {item.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full dark:bg-gray-100"></span>
-              </a>
-            ))}
-
-            <a
-              href="https://docs.google.com/document/d/1Rvqc8I2e5q534Ne93OOxAZyFzpwbHHpu/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-900 transition-all duration-300 transform hover:scale-105 text-sm font-normal dark:bg-gray-700 dark:hover:bg-gray-500"
+            {/* Mobile Menu Toggle Button */}
+            <button className="md:hidden p-2" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen ? 'true' : 'false'}
+              aria-controls="mobile-menu"
             >
-              <span>Résumé</span>
-              <ExternalLink size={16} />
-            </a>
-
-            <DarkModeToggle />
+              {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
+            </button>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button className="md:hidden p-2" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMenuOpen ? 'true' : 'false'}
-            aria-controls="mobile-menu"
-          >
-            {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
-          </button>
+          {/* Mobile Navigation Menu */}
+          {isMenuOpen && (
+            <div 
+              id="mobile-menu"
+              className="md:hidden py-4 border-t border-gray-100 dark:border-gray-700"
+            >
+              {navItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={(e) => handleAnchorClick(e, item.href)}
+                  className="block py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
+                >
+                  {item.name}
+                </a>
+              ))}
+              {/* Mobile resume link */}
+              <a
+                href="https://docs.google.com/document/d/1HOl5ZWTwaIqmNCdVBol7PW7Ufm9WEhI4/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 mt-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 text-sm font-normal"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span>Résumé</span>
+                <ExternalLink size={16} />
+              </a>
+              {/* Mobile dark mode toggle */}
+              <DarkModeToggle className="mt-4 sm:mt-0" />
+            </div>
+          )}
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div 
-            id="mobile-menu"
-            className="md:hidden py-4 border-t border-gray-100 dark:border-gray-700"
-          >
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleAnchorClick(e, item.href)}
-                className="block py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
-              >
-                {item.name}
-              </a>
-            ))}
-            <a
-              href="https://docs.google.com/document/d/1HOl5ZWTwaIqmNCdVBol7PW7Ufm9WEhI4/edit?usp=sharing&ouid=105707905178570836504&rtpof=true&sd=true"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 mt-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 text-sm font-normal"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <span>Résumé</span>
-              <ExternalLink size={16} />
-            </a>
-            <DarkModeToggle className="mt-4 sm:mt-0" />
-          </div>
-        )}
-      </div>
-    </nav>
+      </nav>
     </>
   );
 };

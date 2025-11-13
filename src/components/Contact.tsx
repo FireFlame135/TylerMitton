@@ -1,3 +1,10 @@
+// src/components/Contact.tsx
+/**
+ * Contact section with form and social links.
+ * Author: Tyler Mitton
+ * Allows visitors to send messages and provides social media links.
+ */
+
 import React, { useState } from 'react'
 
 // Icons
@@ -19,31 +26,30 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 
-// Contact form components
+// Contact form configuration and validation
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit' 
-// Yes, this access key is intentionally exposed in the front end. Web3Forms explains why it doesn't matter in their documentation:
-// https://docs.web3forms.com/getting-started/faq
+// Access key is intentionally exposed; see: https://docs.web3forms.com/getting-started/faq
 const ACCESS_KEY = '83d97da9-fc41-414d-9528-45394bc1976a' 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
 
 const Contact: React.FC = () => {
-  // form fields
+  // Form field state
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
-  // honeypot checkbox
+  // Honeypot checkbox to prevent spam bots
   const [botcheck, setBotcheck] = useState(false)
 
-  // validation errors
+  // Validation error state
   const [nameError, setNameError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [messageError, setMessageError] = useState<string | null>(null)
 
-  // submit UI state
+  // Submit state and dialog management
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogContent, setDialogContent] = useState<{ title: string; desc: string }>({
@@ -52,6 +58,7 @@ const Contact: React.FC = () => {
   })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Handle form submission, validation, and Web3Forms API call
     e.preventDefault()
 
     // clear previous errors

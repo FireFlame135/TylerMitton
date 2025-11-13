@@ -1,10 +1,19 @@
+// src/components/MazeGame.tsx
+/**
+ *  Interactive 3D maze game using three.js.
+ *  Generates a procedural maze, sets up a Three.js scene, and provides
+ *  keyboard/mouse/touch controls for navigation. Includes collision
+ *  detection, optimized instanced wall rendering, and mobile joystick UI.
+ *  Author: Tyler Mitton
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   // Import necessary Three.js classes
   PerspectiveCamera, Scene, Color, AmbientLight, DirectionalLight, WebGLRenderer,
   BoxGeometry, MeshStandardMaterial, InstancedMesh, PlaneGeometry, Mesh, DoubleSide,
   DynamicDrawUsage, Vector3, Matrix4, Quaternion, Box3, Frustum, MathUtils, Vector2,
-  Clock // <-- Import the Clock
+  Clock
 } from 'three';
 import { Link } from 'react-router-dom';
 import SEO from './SEO';

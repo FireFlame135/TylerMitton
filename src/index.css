@@ -1,155 +1,76 @@
-
-/* 
-  The * selector applies a border to all elements.
-  This is useful for debugging layout issues.
-  Comment out to remove the red outlines.
+/* src/index.css */
+/*
+  Global stylesheet for the portfolio website.
+  Author: Tyler Mitton
+  Configures Tailwind CSS, custom properties, fonts, and design system tokens.
 */
 
-/* * {
+/* Debug layout issues (commented out by default) */
+/*
+* {
   outline: 1px solid red !important;
-} */
-
-/* 
-  Import Tailwind's base styles, component classes, and utility classes.
-  These directives tell Tailwind to inject its CSS at build time.
-  - Removing these would mean you lose all Tailwind styling.
+}
 */
+
+/* Import Tailwind CSS layers for styling */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
-  The @layer base directive allows you to add custom base styles that will be merged with Tailwind's base layer.
-  Here, we define CSS variables (custom properties) for colors and other design tokens.
-  These variables make it easy to manage and switch themes (like light/dark mode).
-  - Removing this block would break color theming and make your site harder to maintain or theme.
-*/
+/* Define custom CSS variables for theming */
 @layer base {
   :root {
-    /* 
-      --background: The main background color for the site (light mode).
-      Used for the body and other backgrounds.
-      Deleting this would make background color fallback to browser default.
-    */
+    /* Light mode background color */
     --background: 0 0% 100%;
-    /* 
-      --foreground: The main text color (light mode).
-      Used for body text and headings.
-      Deleting this would make text color fallback to browser default.
-    */
+    /* Light mode text color */
     --foreground: 222.2 84% 4.9%;
 
-    /* 
-      --card: Background color for card components (light mode).
-      Deleting this would affect card backgrounds.
-    */
+    /* Light mode card background */
     --card: 0 0% 100%;
-    /* 
-      --card-foreground: Text color for card components (light mode).
-      Deleting this would affect card text color.
-    */
+    /* Light mode card text */
     --card-foreground: 222.2 84% 4.9%;
 
-    /* 
-      --popover: Background color for popover components (light mode).
-      Deleting this would affect popover backgrounds.
-    */
+    /* Light mode popover background */
     --popover: 0 0% 100%;
-    /* 
-      --popover-foreground: Text color for popover components (light mode).
-      Deleting this would affect popover text color.
-    */
+    /* Light mode popover text */
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* 
-      --primary: Primary brand color (light mode).
-      Used for buttons, links, etc.
-      Deleting this would break primary color styling.
-    */
+    /* Light mode primary brand color */
     --primary: 222.2 47.4% 11.2%;
-    /* 
-      --primary-foreground: Text color on primary backgrounds (light mode).
-      Deleting this would make text on primary backgrounds unreadable.
-    */
+    /* Light mode primary button text */
     --primary-foreground: 210 40% 98%;
 
-    /* 
-      --secondary: Secondary color (light mode).
-      Used for secondary buttons, backgrounds, etc.
-      Deleting this would break secondary color styling.
-    */
+    /* Light mode secondary color */
     --secondary: 210 40% 96.1%;
-    /* 
-      --secondary-foreground: Text color on secondary backgrounds (light mode).
-      Deleting this would make text on secondary backgrounds unreadable.
-    */
+    /* Light mode secondary text */
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    /* 
-      --muted: Muted background color (light mode).
-      Used for less prominent UI elements.
-      Deleting this would break muted styling.
-    */
+    /* Light mode muted elements background */
     --muted: 210 40% 96.1%;
-    /* 
-      --muted-foreground: Muted text color (light mode).
-      Used for less prominent text.
-      Deleting this would break muted text styling.
-    */
+    /* Light mode muted text */
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* 
-      --accent: Accent color (light mode).
-      Used for highlights or accents.
-      Deleting this would break accent styling.
-    */
+    /* Light mode accent color */
     --accent: 210 40% 96.1%;
-    /* 
-      --accent-foreground: Text color on accent backgrounds (light mode).
-      Deleting this would make text on accent backgrounds unreadable.
-    */
+    /* Light mode accent text */
     --accent-foreground: 222.2 47.4% 11.2%;
 
-    /* 
-      --destructive: Color for destructive actions (like delete buttons, light mode).
-      Deleting this would break destructive action styling.
-    */
+    /* Light mode destructive action color */
     --destructive: 0 84.2% 60.2%;
-    /* 
-      --destructive-foreground: Text color on destructive backgrounds (light mode).
-      Deleting this would make text on destructive backgrounds unreadable.
-    */
+    /* Light mode destructive text */
     --destructive-foreground: 210 40% 98%;
 
-    /* 
-      --border: Default border color (light mode).
-      Used for borders around elements.
-      Deleting this would break border styling.
-    */
+    /* Light mode border color */
     --border: 214.3 31.8% 91.4%;
-    /* 
-      --input: Input field background/border color (light mode).
-      Deleting this would break input styling.
-    */
+    /* Light mode input styling */
     --input: 214.3 31.8% 91.4%;
-    /* 
-      --ring: Focus ring color (light mode).
-      Used for accessibility focus outlines.
-      Deleting this would break focus ring styling.
-    */
+    /* Light mode focus ring color */
     --ring: 222.2 84% 4.9%;
 
-    /* 
-      --radius: Border radius for rounded corners.
-      Used for consistent rounding across components.
-      Deleting this would make corners square.
-    */
+    /* Border radius standard */
     --radius: 0.5rem;
 
-    /* 
-      Sidebar variables: Used for sidebar theming (light mode).
-      Deleting these would break sidebar color styling.
-    */
+    /* Light mode sidebar colors */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -160,11 +81,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  /*
-    The .dark class is used to enable dark mode.
-    When .dark is present on the html or body, these variables override the light mode ones.
-    Deleting this would make dark mode impossible.
-  */
+  /* Dark mode theme overrides */
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -204,32 +121,25 @@
   }
 }
 
-/*
-  This @layer base block applies Tailwind utility classes to all elements and the body.
-  - The * selector applies the border color to all elements, ensuring consistent border color.
-  - The body selector sets the background and text color using the variables above.
-  Removing this would break consistent border, background, and text color styling.
-*/
+/* Apply base styling to all elements */
 @layer base {
+  /* Consistent border color across elements */
   * {
     @apply border-border;
   }
 
+  /* Default body background and text color */
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/*
-  The html selector applies smooth scrolling to the whole page.
-  This makes anchor link navigation smooth instead of instant.
-  Removing this would make anchor link jumps abrupt.
-*/
+/* Enable smooth scrolling for anchor links */
 html {
   @apply scroll-smooth;
 }
 
-/* Always load normal (400 + 700) */
+/* Load Inter font family (regular weight) */
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/InterVariable.woff2') format('woff2');
@@ -238,6 +148,7 @@ html {
   font-display: swap;
 }
 
+/* Load Inter font family (bold weight) */
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/InterVariable.woff2') format('woff2');
@@ -246,7 +157,7 @@ html {
   font-display: swap;
 }
 
-/* Italic Next 2 */
+/* Load Inter font family (italic, regular weight) */
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/InterVariable-Italic.woff2') format('woff2');
@@ -255,6 +166,7 @@ html {
   font-display: swap;
 }
 
+/* Load Inter font family (italic, bold weight) */
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/InterVariable-Italic.woff2') format('woff2');

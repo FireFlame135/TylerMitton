@@ -1,5 +1,12 @@
+// src/components/Testimonials.tsx
+/**
+ * Testimonials section displaying quotes from colleagues and mentors.
+ * Author: Tyler Mitton
+ * Showcases professional endorsements and feedback in a card layout.
+ */
 
 const Testimonials = () => {
+  // Define testimonial data with quotes and attribution
   const testimonials = [
     {
       quote: (
@@ -19,16 +26,12 @@ const Testimonials = () => {
       author: "Abigail Boekweg",
       title: "Instructional Design Manager, Brigham Young University Independent Study",
     },
-    // {
-    //   quote: "Tyler's ability to understand our vision and translate it into compelling visual stories is truly remarkable.",
-    //   author: "Emily Rodriguez",
-    //   title: "Marketing Manager, BrandCo",
-    // },
   ];
 
   return (
     <section id="testimonials" className="py-16 px-6 scroll-mt-16 sm:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Section heading */}
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 mb-4 dark:text-gray-100 dark:text-bold">
             What Others Say
@@ -38,12 +41,14 @@ const Testimonials = () => {
           </p>
         </div>
 
+        {/* Testimonials list */}
         <div className="flex flex-col gap-8 items-center">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
               className="w-full max-w-4xl bg-[#D4D5D8] dark:bg-zinc-900 p-6 rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300"
             >
+              {/* Quote icon */}
               <div className="mb-4">
                 <svg
                   className="w-8 h-8 text-gray-500 dark:text-gray-500"
@@ -53,9 +58,11 @@ const Testimonials = () => {
                   <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-1.1.9-2 2-2V8zm16 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-1.1.9-2 2-2V8z" />
                 </svg>
               </div>
+              {/* Quote text */}
               <blockquote className="text-gray-800 dark:text-gray-300 mb-4 leading-relaxed">
                 "{testimonial.quote}"
               </blockquote>
+              {/* Author and attribution */}
               <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
                 <div className="font-normal text-gray-900 dark:text-gray-200">
                   {testimonial.author}

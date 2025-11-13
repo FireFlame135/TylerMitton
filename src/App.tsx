@@ -1,4 +1,10 @@
 // src/App.tsx
+/**
+ * Main application component managing routing, providers, and layout.
+ * Author: Tyler Mitton
+ * Configures React Router, query client, and theme providers for the entire application.
+ */
+
 import { Suspense, lazy } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,7 +12,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-// Lazy load the components to optimize initial load time
+// Lazy load pages to optimize initial bundle size
 const Index = lazy(() => import('./pages/Index'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ArticlesPage = lazy(() => import('./pages/ArticlesPage'));
@@ -14,7 +20,7 @@ const BlogPost = lazy(() => import('./pages/BlogPost'));
 const MazeGame = lazy(() => import('./components/MazeGame'));
 const LinkedInRedirect = lazy(() => import('./components/LinkedIn'));
 
-// Sitemap component
+// Generate dynamic XML sitemap for SEO
 const Sitemap = () => {
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -69,9 +75,10 @@ const Sitemap = () => {
   );
 };
 
+// Initialize React Query client for data fetching and caching
 const queryClient = new QueryClient();
 
-// Create a root layout component that includes the <Suspense> fallback and ScrollRestoration
+// Root layout wrapper with suspense fallback and scroll restoration
 const RootLayout = () => (
   <Suspense fallback={<div className="min-h-screen bg-[#E2E4E6] dark:bg-zinc-800" />}>
     <Outlet />
@@ -79,8 +86,7 @@ const RootLayout = () => (
   </Suspense>
 );
 
-
-// Define routes using the data router structure
+// Define application routes
 const router = createBrowserRouter([
   {
     path: "/",
@@ -97,6 +103,7 @@ const router = createBrowserRouter([
   },
 ]);
 
+// Main app wrapper with all necessary providers
 const App = () => (
   <HelmetProvider>
     <ErrorBoundary>
