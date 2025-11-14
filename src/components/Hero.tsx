@@ -18,7 +18,7 @@ const Hero = () => {
         </h1>
         {/* Subheading describing focus areas and approach */}
         <p className="text-lg text-gray-600 max-w-2xl leading-relaxed dark:text-gray-400">
-          I love to create products with thoughtful design, combining function and aesthetics to connect with people. I also enjoy using data and software to solve design challenges, streamline processes, and fix real-world problems. And I love QSAI
+          I love to create products with thoughtful design, combining function and aesthetics to connect with people. I also enjoy using data and software to solve design challenges, streamline processes, and fix real-world problems.
         </p>
       </div>
     </section>
