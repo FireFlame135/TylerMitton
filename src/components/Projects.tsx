@@ -14,7 +14,7 @@ const Projects = () => {
       title: "Maze Game",
       category: "Game Design",
       image: "Maze_Game_Screenshot.avif",
-      description: "A simple maze game where you can explore aimlessly. Built with the three.js framework. Uses a depth first search algorithm to ensure a perfect maze. It's compatible with mobile devices and has multiple control options for those on PC. Click to play!",
+      description: "A simple maze game where you can explore aimlessly. It uses a depth-first search algorithm to ensure a perfect maze is always generated. It's very mobile friendly and has multiple control options for those on PC. Built with three.js. Click to play!",
       link: "/MazeGame/"
     },
     {
@@ -28,10 +28,24 @@ const Projects = () => {
       title: "Multimodal AI Tutor",
       category: "AI Hackathon",
       image: "AI_Tutor_Screenshot.avif",
-      description: "A multimodal AI tutor that uses a combination of inputs like drawings on a whiteboard, text, and voice to help students learn. Click to see the project's Devpost submission, award at the Weber State AI Hackathon, and a demo video!",
+      description: "A multimodal AI tutor that uses a combination of inputs like drawings on a whiteboard, text, and voice to help students learn. Click to see the project's Devpost submission, a demo video, and the ElevenLabs award that it won at the Weber State AI Hackathon!",
       link: "https://devpost.com/software/ai-tutor-weber-state-ai-hackathon?utm_campaign=winner_email&utm_content=submission_won&utm_medium=tweet&utm_source=twitter"
     },
-  ];
+    {
+      title: "Full-Stack Website for Ella Rises",
+      category: "Full-Stack Web Development",
+      image: "EllaRisesScreenshot.avif",
+      description: "A full-stack website built for the local non-profit organization Ella Rises. It features include user authentication and privileges, event/registration management, and a data analysis dashboard through Tableau. Some of this is hidden behind admin priveledges. Built with Node.js/Express and Postgres, and deployed through AWS.",
+      link: "https://ella-rises1.is404.net/"
+    },
+    {
+      title: "Team Lead/Project Management Experience: Building The Doctor's Lounge Website",
+      category: "On-Campus Internship",
+      image: "DoctorsLoungeScreenshot.avif",
+      description: "I had the opportunity to be team leader for my on-campus internship. I managed a 4-month project and a team of 4, coordinated parallel tasks, led team meetings, and ensured quality in deliverables. Click to see what we built: a website for The Doctor's Lounge.",
+      link: "https://fromthedoctorslounge.com/"
+    }
+];
 
   return (
     <section id="projects" className="py-16 px-6 sm:px-8 mx-auto scroll-mt-16 bg-[#F0F1F4] dark:bg-gray-800">
