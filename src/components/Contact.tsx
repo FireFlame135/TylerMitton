@@ -145,7 +145,7 @@ const Contact: React.FC = () => {
             <br />
             I'm always interested in new opportunities and collaborations.
             Whether you have a project in mind or just want to say hello and chat,
-            I'd love to hear from you. :)
+            I would love to hear from you. :)
           </p>
           <div className="space-y-6 space-x-3.5">
             <div className="flex items-center space-x-4">
