@@ -7,16 +7,25 @@
 
 import { Link } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import TechBadge from './TechBadge';
 
 interface ProjectCardProps {
   title: string;
   category: string;
-  image: string; 
+  image: string;
   description: string;
   link?: string;
+  techStack?: string[];
+  altText?: string;
 }
 
-const ProjectCard = ({ title, category, image, description, link }: ProjectCardProps) => {
+const ProjectCard = ({ title, category, image, description, link, techStack, altText }: ProjectCardProps) => {
+  // Generate descriptive alt text if not provided
+  const generateAltText = () => {
+    if (altText) return altText;
+    return `${title} screenshot - ${category} project showcasing ${description.substring(0, 50).trim()}...`;
+  };
+
   // Construct the image path using environment base URL
   const imageSRC = `${import.meta.env.BASE_URL}assets/${image}`;
 
@@ -32,7 +41,7 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
           src={imageSRC}
           width="100%"
           height="100%"
-          alt={title}
+          alt={generateAltText()}
           fetchpriority="high"
           loading="eager"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -50,6 +59,16 @@ const ProjectCard = ({ title, category, image, description, link }: ProjectCardP
         <h3 className="text-xl font-normal text-gray-900 dark:text-gray-300 transition-colors duration-200">
           {title}
         </h3>
+
+        {/* Tech stack badges - displayed below title */}
+        {techStack && techStack.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {techStack.map((tech) => (
+              <TechBadge key={tech} name={tech} />
+            ))}
+          </div>
+        )}
+
         {/* Project description */}
         <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400 flex-1">
           {description}

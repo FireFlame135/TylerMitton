@@ -31,7 +31,9 @@ const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
 // Access key is intentionally exposed; see: https://docs.web3forms.com/getting-started/faq
 const ACCESS_KEY = '83d97da9-fc41-414d-9528-45394bc1976a' 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
+// Less strict regex to accept spaces and various formatting styles
+// Less strict regex to accept optional spaces between digits
+const phoneRegex = /^(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
 
 const Contact: React.FC = () => {
   // Form field state
@@ -151,13 +153,14 @@ const Contact: React.FC = () => {
             <div className="flex items-center space-x-4">
               <a
                 href="mailto:tylermitton@gmail.com?subject=Let's Chat!"
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 title="Email Tyler Mitton"
+                aria-label="Email Tyler Mitton at tylermitton@gmail.com"
                 className="
                   group inline-flex items-center space-x-2
                   px-3 py-2 rounded-md"
-              > 
+              >
                 <Mail
                   size={30}
                   className="text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-gray-50"
@@ -173,6 +176,7 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="LinkedIn"
+                aria-label="LinkedIn profile"
                 className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiLinkedin size={30} />
@@ -182,6 +186,7 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Instagram"
+                aria-label="Instagram profile"
                 className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
               >
                 <SiInstagram size={30} />
