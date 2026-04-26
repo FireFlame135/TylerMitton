@@ -178,15 +178,6 @@ const Contact: React.FC = () => {
                 <SiLinkedin size={30} />
               </a>
               <a
-                href="https://medium.com/@tyler-mitton"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Medium"
-                className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
-              >
-                <SiMedium size={30} />
-              </a>
-              <a 
                 href="https://www.instagram.com/tylermitton135/"
                 target="_blank"
                 rel="noopener noreferrer"
